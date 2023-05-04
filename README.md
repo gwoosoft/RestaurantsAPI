@@ -14,6 +14,8 @@
 - Local Secondary Index: rating - To query rating 
 - Other attributes as address, phone number, radius, and etc. 
 
+*Note: Lombok is not used in this project.
+
 - Global Secondary Index: cuisine-global - This is just a flag variable to indicate whether this paticular cuisine has been already marked in DynamoDB to query all cuisines efficiently without scanning the whole table 
 
 **Using AWS API Gateway + AWS Lambda + DynamoDB + Elastic Search deployed via AWS CDK**
