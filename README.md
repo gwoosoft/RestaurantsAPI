@@ -24,8 +24,8 @@
 - The Lambda hander has a customized APIGatewayProxyResponseEvent handler that is used for routing different API endpoint(API Gateway resource) 
    - Eventually will create another Lambda endpoint when there are more microservices 
    - GET  
-      - /getAllCuisines
-      - /getTopRestaurantsBasedOnRating
+      - /getAllCuisines : Take all the cuisines available in NYC
+      - /getTopRestaurantsBasedOnRating : Take all the restaurants equal or above the given rating
 
 
 
