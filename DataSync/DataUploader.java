@@ -40,14 +40,13 @@ public class DataUploader {
                 .withHashKeyValues(restaurantRepository)
                 .withIndexName("cuisine-global-index")
                 .withConsistentRead(false);
-        PaginatedQueryList result=null;
-
+        
         try{
-           return result = dynamoDBMapper.query(DynamoDBRestaurantRepository.class, queryExpression);
+           return dynamoDBMapper.query(DynamoDBRestaurantRepository.class, queryExpression);
         }catch(Exception e){
             System.out.println("Global index for" + cuisine + " looks like it is not existing in DB");
+            return null;
         }
-        return result;
     }
 
     public void writeDB(String response, String cuisine){
