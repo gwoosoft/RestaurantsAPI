@@ -15,13 +15,13 @@ import java.util.Set;
 
 public class DynamoDBRepository {
 
-    public QueryResultPage<RestaurantEntity> getCuisineBasedOnRating(String cuisine, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum, DynamoDBMapper dynamoDBMapper){
+    public QueryResultPage<RestaurantEntity> getCuisineBasedOnRating(String cuisine, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum, String value, DynamoDBMapper dynamoDBMapper){
 
         RestaurantEntity restaurants = new RestaurantEntity();
         restaurants.setCuisine(cuisine);
         Condition rangeKeyCondition = new Condition()
                 .withComparisonOperator(ComparisonOperator.GE)
-                .withAttributeValueList(new AttributeValue().withN("4.6"));
+                .withAttributeValueList(new AttributeValue().withN(value));
 
         DynamoDBQueryExpression<RestaurantEntity> queryExpression = new DynamoDBQueryExpression<RestaurantEntity>()
                 .withHashKeyValues(restaurants)
