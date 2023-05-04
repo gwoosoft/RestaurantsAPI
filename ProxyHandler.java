@@ -32,7 +32,7 @@ public class ProxyHandler {
                 }
             } catch (Exception e) {
                 System.out.println("Failing error");
-                response.put("failing reason", ((String)event.get("resource")));
+                response.put("failing reason", ((String)e));
             }
         }
 
