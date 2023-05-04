@@ -2,7 +2,8 @@
 
 - /getAllCuisines
 - /getTopRestaurantsBasedOnRating
-- /more query is coming.. Thinking about having a service where ML gives recommendation based on what user went in the past by adding more field in an existing DB
+- /more APIs are coming.. Thinking about having a service where ML gives recommendation based on what user went in the past by adding more field in an existing DB
+
 
 **Not in this respository**
 - Elastic Search Usage - Still thinking about whether to use Elastic Search or not for caching purpose. Initially it was used for chatbot where a user query to get 3-5 restaurants per cuisine. 
@@ -19,6 +20,7 @@
 
 - CDK has only Lambda stack that allows Lambda to access to DynamoDB, APIGateway, and Elastic Search.
 - The Lambda hander has a customized APIGatewayProxyResponseEvent handler that is used for routing different API endpoint(API Gateway resource) 
+   - Eventually will create another Lambda endpoint when there are more microservices 
    - GET  
       - /getAllCuisines
       - /getTopRestaurantsBasedOnRating
