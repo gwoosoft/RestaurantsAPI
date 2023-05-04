@@ -12,7 +12,7 @@
 - PrimaryKey: cuisine
 - SortKey: name(restaurant name)
 - Local Index: rating - To query rating 
-- other attributes as address, phone number, radius, and etc. 
+- Other attributes as address, phone number, radius, and etc. 
 
 - Global Secondary Index: cuisine-global - This is just a flag variable to indicate whether this paticular cuisine has been already marked in DynamoDB to query all cuisines efficiently without scanning the whole table 
 
