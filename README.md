@@ -14,7 +14,7 @@
 - Local Index: rating - To query rating 
 - other attributes as address, phone number, radius, and etc. 
 
-- Global Secondary Index: cuisine-global - where it is a flag to indicate that this cuisine has been already marked - To query all cuisines efficiently without scanning the whole table 
+- Global Secondary Index: cuisine-global - This is just a flag variable to indicate whether this paticular cuisine has been already marked in DynamoDB to query all cuisines efficiently without scanning the whole table 
 
 **Using AWS API Gateway + AWS Lambda + DynamoDB + Elastic Search deployed via AWS CDK**
 
