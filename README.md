@@ -5,7 +5,6 @@
 - /more query is coming.. Thinking about having a service where ML gives recommendation based on what user went in the past by adding more field in an existing DB
 
 **Not in this respository**
-- Data sync lambda function that collects Data from API and save them in DynamoDB with 
 - Elastic Search Usage - Still thinking about whether to use Elastic Search or not for caching purpose. Initially it was used for chatbot where a user query to get 3-5 restaurants per cuisine. 
 
 **DynamoDB table schema**
