@@ -28,8 +28,8 @@
       - /getTopRestaurantsBasedOnRating : Take all the restaurants equal or above the given rating
 
 **Updates** 
+
 Instead of manually handling routing - decided to utilize Springboot `Restcontroller` to automatically route with API Gateway Proxy 
 - `SteamLambdaHandler` takes the Springboot application and route with the power of beans
-
-
-
+- It is definetely overkill for routing but this application will have more Lambda endpoints and this will make the application more dynamic
+- Springboot3 integration with Lambda reduces the cold start time and profiling lambda also reduces it.  
