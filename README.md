@@ -29,6 +29,10 @@
 
 **Updates** 
 
+Noticed that there are not many resources available for Springboot + Lambda + API Gateway:
+
+I am sharing POM file so anyone wants to create a quick project can use it. 
+
 Instead of manually handling routing - decided to utilize Springboot `Restcontroller` to automatically route with API Gateway Proxy 
 - `SteamLambdaHandler` takes the Springboot application and route with the power of beans
 - It is definetely overkill for the routing but this application will have more Lambda endpoints and this will make the application more dynamic
