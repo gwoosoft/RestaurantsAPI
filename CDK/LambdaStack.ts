@@ -74,9 +74,7 @@ export class LambdaStack extends Stack {
 
     const getAllCuisines = restApi.root.addResource('getAllCuisines'); 
     const getTopRestaurantsBasedOnRating = restApi.root.addResource("getTopRestaurantsBasedOnRating");
-    getAllCuisines.addMethod('GET', apiGatewayLambdaIntegration).addMethodResponse({statusCode:"200"});  // GET /items
-    getAllCuisines.addMethod('POST',apiGatewayLambdaIntegration).addMethodResponse({statusCode:"200"}); // POST /items
-    getTopRestaurantsBasedOnRating.addMethod('GET', apiGatewayLambdaIntegration).addMethodResponse({statusCode:"200"});  // GET /items
-    getTopRestaurantsBasedOnRating.addMethod('POST',apiGatewayLambdaIntegration).addMethodResponse({statusCode:"200"}); // POST /items
+    getAllCuisines.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getAllCuisines
+    getTopRestaurantsBasedOnRating.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRating
   }
 }
