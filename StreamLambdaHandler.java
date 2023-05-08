@@ -39,12 +39,16 @@ public class StreamLambdaHandler implements RequestHandler<AwsProxyRequest, AwsP
 
     @Override
     public AwsProxyResponse handleRequest(AwsProxyRequest awsProxyRequest, Context context) {
-        AwsProxyResponse res = handler.proxy(awsProxyRequest, context);
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Access-Control-Allow-Headers","Content-Type");
-        headers.put("Access-Control-Allow-Origin", "*");
-        headers.put("Access-Control-Allow-Methods", "*");
-        res.setHeaders(headers);
-        return res;
+        try{
+            AwsProxyResponse res = handler.proxy(awsProxyRequest, context);
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Access-Control-Allow-Headers","Content-Type");
+            headers.put("Access-Control-Allow-Origin", "*");
+            headers.put("Access-Control-Allow-Methods", "*");
+            res.setHeaders(headers);
+            return res;
+        }catch (Exception e){
+            System.out.println("Error gettting proxy with error:" + e);
+        }
     }
 }
