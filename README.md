@@ -31,10 +31,11 @@
 
 Noticed that there are not many resources available for Springboot + Lambda + API Gateway:
 
-I am sharing POM file so anyone wants to create a quick project can use it. 
+I am sharing POM file so anyone who wants to create a quick project can use it. 
 
 Instead of manually handling routing - decided to utilize Springboot `Restcontroller` to automatically route with API Gateway Proxy 
 - `SteamLambdaHandler` takes the Springboot application and route with the power of beans
 - It is definetely overkill for the routing but this application will have more Lambda endpoints and this will make the application more dynamic
-- Springboot3 integration with Lambda reduces the cold start time and profiling lambda also reduces it.  
+- Springboot3 integration with Lambda reduces the cold start time. 
+      - provisional concurrency can reduce start time, but this is not free tier ;) 
 - Currently it runs on Java 11. Although Lambda supports Java 17, SAM CLI does support upto Java 11 yet.
