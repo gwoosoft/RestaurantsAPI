@@ -6,6 +6,7 @@ import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.amazonaws.serverless.proxy.spring.SpringBootProxyHandlerBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +15,11 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 
-public class StreamLambdaHandler implements RequestStreamHandler {
+public class StreamLambdaHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
     private static final SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
     private static Logger logger = LoggerFactory.getLogger(StreamLambdaHandler.class);
     static {
@@ -25,6 +28,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
                     .defaultProxy()
                     .asyncInit()
                     .springBootApplication(RestaurantAPIApplication.class)
+                    .profiles("lambda")
                     .buildAndInitialize();
         } catch (ContainerInitializationException e) {
             e.printStackTrace();
@@ -34,8 +38,13 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     }
 
     @Override
-    public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
-            throws IOException {
-        handler.proxyStream(inputStream, outputStream, context);
+    public AwsProxyResponse handleRequest(AwsProxyRequest awsProxyRequest, Context context) {
+        AwsProxyResponse res = handler.proxy(awsProxyRequest, context);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Access-Control-Allow-Headers","Content-Type");
+        headers.put("Access-Control-Allow-Origin", "*");
+        headers.put("Access-Control-Allow-Methods", "*");
+        res.setHeaders(headers);
+        return res;
     }
 }
