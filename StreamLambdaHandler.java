@@ -48,7 +48,7 @@ public class StreamLambdaHandler implements RequestHandler<AwsProxyRequest, AwsP
             res.setHeaders(headers);
             return res;
         }catch (Exception e){
-            System.out.println("Error gettting proxy with error:" + e);
+            throw new RuntimeException("Error gettting proxy with error:" + e);
         }
     }
 }
