@@ -38,4 +38,5 @@ Instead of manually handling routing - decided to utilize Springboot `Restcontro
 - It is definetely overkill for the routing but this application will have more Lambda endpoints and this will make the application more dynamic
 - Springboot3 integration with Lambda reduces the cold start time. 
       - provisional concurrency can reduce start time, but this is not free tier ;) 
+      - more likely would just Lambda SnapStart as it would still reduce the cold start time. 
 - Currently it runs on Java 11. Although Lambda supports Java 17, SAM CLI does support upto Java 11 yet.
