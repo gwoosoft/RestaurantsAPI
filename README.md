@@ -37,6 +37,7 @@ Instead of manually handling routing - decided to utilize Springboot `Restcontro
 - `SteamLambdaHandler` takes the Springboot application and route with the power of beans
 - It is definetely overkill for the routing but this application will have more Lambda endpoints and this will make the application more dynamic
 - Springboot3 integration with Lambda reduces the cold start time. 
+
       - provisional concurrency can reduce start time, but this is not free tier ;).
       - Instead of provisional concunrency, I implemented Lambda Snapstart to reduce the start time.
 
