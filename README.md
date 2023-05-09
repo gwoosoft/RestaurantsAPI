@@ -37,12 +37,13 @@ Instead of manually handling routing - decided to utilize Springboot `Restcontro
 - `SteamLambdaHandler` takes the Springboot application and route with the power of beans
 - It is definetely overkill for the routing but this application will have more Lambda endpoints and this will make the application more dynamic
 - Springboot3 integration with Lambda reduces the cold start time. 
-      - provisional concurrency can reduce start time, but this is not free tier ;) 
-      - Instead of provisional concunrency, I implemented Lambda Snapstart to reduce the start time
+      - provisional concurrency can reduce start time, but this is not free tier ;).
+      - Instead of provisional concunrency, I implemented Lambda Snapstart to reduce the start time.
 
 ```
 RESTORE_START Runtime Version: java:11.v19	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:bd472a12ac73ffacf794b0457d28eab67af5f7b9989803e4cd445069206b06b2
 RESTORE_REPORT Restore Duration: 509.31 ms // this indicates Snapstart is in place 
 START RequestId: c0c7298c-39c1-4b90-9c2d-1b2a7e8437ff Version: 2
 ```
+
 - Currently it runs on Java 11. Although Lambda supports Java 17, SAM CLI does support upto Java 11 yet.
