@@ -21,6 +21,7 @@ public class DynamoDBRepository {
                 .withAttributeValueList(new AttributeValue().withN("4.6"));
 
         DynamoDBQueryExpression<RestaurantEntity> queryExpression = new DynamoDBQueryExpression<RestaurantEntity>()
+                .withExclusiveStartKey(lastEvaluatedKey)
                 .withHashKeyValues(restaurants)
                 .withRangeKeyCondition("rating",rangeKeyCondition)
                 .withLimit(maxNum);
@@ -38,11 +39,13 @@ public class DynamoDBRepository {
      * @param  dynamoDBMapper
      * @return  ScanResultPage<RestaurantEntity>
      */
-    public ScanResultPage<RestaurantEntity> getTopRestaurantsBasedOnRating(String value, DynamoDBMapper dynamoDBMapper) {
+    public ScanResultPage<RestaurantEntity> getTopRestaurantsBasedOnRating(String value, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum, DynamoDBMapper dynamoDBMapper) {
 
         HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
         expressionAttributeValues.put(":rating", new AttributeValue().withN(value));
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+                .withExclusiveStartKey(lastEvaluatedKey)
+                .withLimit(maxNum)
                 .withFilterExpression("rating > :rating")
                 .withExpressionAttributeValues(expressionAttributeValues);
 
@@ -58,12 +61,14 @@ public class DynamoDBRepository {
      * @param  dynamoDBMapper
      * @return  QueryResultPage
      */
-    public QueryResultPage<RestaurantEntity> getAllCuisines(DynamoDBMapper dynamoDBMapper) {
+    public QueryResultPage<RestaurantEntity> getAllCuisines(DynamoDBMapper dynamoDBMapper, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum) {
         RestaurantEntity restaurantEntity = new RestaurantEntity();
         restaurantEntity.setCuisineGlobal(1);
 
         DynamoDBQueryExpression<RestaurantEntity> queryExpression =  new DynamoDBQueryExpression<RestaurantEntity>()
+                .withExclusiveStartKey(lastEvaluatedKey)
                 .withHashKeyValues(restaurantEntity)
+                .withLimit(maxNum)
                 .withIndexName("cuisine-global-cuisine-index")
                 .withConsistentRead(false);
 
