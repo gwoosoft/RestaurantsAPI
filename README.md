@@ -8,6 +8,8 @@
 **Not in this respository**
 - Elastic Search Usage - Still thinking about whether to use Elastic Search or not for caching purpose. Initially it was used for chatbot where a user query to get 3-5 restaurants per cuisine. 
 
+**TODO: adding service layer to restcontroller and adding some unit test**
+
 **DynamoDB table schema**
 - PrimaryKey: cuisine
 - SortKey: name(restaurant name)
