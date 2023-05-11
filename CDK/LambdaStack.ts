@@ -10,27 +10,45 @@ export class LambdaStack extends Stack {
     super(scope, id, props);
 
     const myRole = new iam.Role(this, 'Role', {
-      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),   // required
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'), 
     });
 
     myRole.addToPolicy(new iam.PolicyStatement({
-      actions: ["dynamodb:*", "apigateway:*", "es:*"],
+      actions: ["dynamodb:*", "apigateway:*", "es:*", "cloudwatch:*"],
       resources: ["*"],
       effect: iam.Effect.ALLOW,
     }));
 
-    
-    const lambaPath='src/lambda_java/untitled/target/lambdajavaone.jar';
-    const functionName =  `lambdaJavaOne`;
+    const lambaPath='src/lambda_java/restaurantAPI/target/restaurantLambda.jar';
+    const functionName =  `springLambdaHandler`;
 
     const fn = new lambda.Function(this, functionName, {
       functionName: functionName,
       runtime: lambda.Runtime.JAVA_11,
-      handler: 'org.example.HandlerString',
+      handler: 'com.gwsoft.restaurantAPI.StreamLambdaHandler',
       code: lambda.Code.fromAsset(lambaPath),
       role: myRole, 
+      memorySize: 3008,
+      timeout:Duration.seconds(28),
     });
 
+    fn.addEnvironment('JAVA_TOOL_OPTIONS', '-XX:+TieredCompilation -XX:TieredStopAtLevel=1');
+
+
+    // (fn.node.defaultChild as lambda.CfnFunction).addPropertyOverride('SnapStart', {
+    //   ApplyOn: 'PublishedVersions',
+    // });
+
+    // const uniqueLogicalId = `springVersion-${new Date().getMilliseconds()}`
+    // // publish a version
+    // fn.currentVersion;
+    // const kVersion = new lambda.Version(this, uniqueLogicalId, { 
+    //   lambda: fn,
+    //   description:`snapStart${uniqueLogicalId}`
+    // });
+
+   
+    
     const lambdaDataSyncName = `lambdaDataSync`;
     const lambdaDataSyncPath = 'src/lambda_java/LF1/target/lambdadatasync.jar';
 
@@ -49,29 +67,10 @@ export class LambdaStack extends Stack {
       },
     });
 
-    // const devDomain = new opensearch.Domain(this, 'photosearch', {
-    //   version: opensearch.EngineVersion.OPENSEARCH_1_3,
-    //   capacity: {
-    //     masterNodes:3,
-    //     dataNodes: 2,
-    //     masterNodeInstanceType: "t3.small.search",
-    //   },
-    //   ebs: {
-    //     volumeSize: 10,
-    //   },
-    //   zoneAwareness: {
-    //     enabled:true,
-    //     availabilityZoneCount: 2,
-    //   },
-    //   logging: {
-    //     slowSearchLogEnabled: true,
-    //     appLogEnabled: true,
-    //     slowIndexLogEnabled: true,
-    //   },
-    // });
-    
-    const apiGatewayLambdaIntegration = new apigateway.LambdaIntegration(fn, {proxy: true,});
-
+    const apiGatewayLambdaIntegration = new apigateway.LambdaIntegration(fn, {
+      proxy: true,
+      timeout:Duration.seconds(29),
+    }); // to add current version to activate snapstart
     const getAllCuisines = restApi.root.addResource('getAllCuisines'); 
     const getTopRestaurantsBasedOnRating = restApi.root.addResource("getTopRestaurantsBasedOnRating");
     getAllCuisines.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getAllCuisines
