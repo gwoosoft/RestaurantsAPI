@@ -7,6 +7,7 @@
 
 **Not in this respository**
 - Elastic Search Usage - Still thinking about whether to use Elastic Search or not for caching purpose. Initially it was used for chatbot where a user query to get 3-5 restaurants per cuisine. 
+- Lombok is not used in this project.
 
 **TODO: adding service layer to restcontroller and adding some unit test**
 
@@ -15,8 +16,6 @@
 - SortKey: name(restaurant name)
 - Local Secondary Index: rating - To query rating 
 - Other attributes as address, phone number, radius, and etc. 
-
-*Note: Lombok is not used in this project.
 
 - Global Secondary Index: cuisine-global - This is just a flag variable to indicate whether this paticular cuisine has been already marked in DynamoDB to query all cuisines efficiently without scanning the whole table 
 
