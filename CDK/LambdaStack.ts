@@ -77,3 +77,4 @@ export class LambdaStack extends Stack {
     getTopRestaurantsBasedOnRating.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRating
   }
 }
+
