@@ -26,6 +26,29 @@
    - GET 
       - /getAllCuisines?maxNum={Integer}&lastEvaluatedKey={String}: Take all the cuisines available in NYC, it has pagination and lastEvaluatedKey response with Base64 encoded
       - /getTopRestaurantsBasedOnRating?maxNum={Integer}&lastEvaluatedKey={String}&rating={String} : Take all the restaurants equal or above the given rating, it has pagination and lastEvaluatedKey response with Base64 encoded
+      
+```
+{
+  "statusCode": 200,
+  "headers": {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "*",
+    "Access-Control-Allow-Headers": "Content-Type"
+  },
+  "multiValueHeaders": {
+    "Content-Length": [
+      "170"
+    ],
+    "Content-Type": [
+      "text/plain; charset=UTF-8"
+    ]
+  },
+  "body": "{\"result\":[\"american\",\"chinese\",\"japanese\"],\"lastEvaluatedKey\":\"eyJjdWlzaW5lLWdsb2JhbCI6eyJuIjoiMSJ9LCJuYW1lIjp7InMiOiJCZW5lbW9uIn0sImN1aXNpbmUiOnsicyI6ImphcGFuZXNlIn19\"}",
+  "base64Encoded": false
+}
+```
+
+
 
 **Updates** 
 
