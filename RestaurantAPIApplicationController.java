@@ -39,16 +39,17 @@ public class RestaurantAPIApplicationController {
     }
 
     @GetMapping("/getAllCuisines")
-    @ResponseBody
     public String getAllCuisines(@RequestParam(required = false, name="maxNum") Integer maxNum, @RequestParam(required = false, name="lastEvaluatedKey") String lastEvaluatedKey) throws JsonProcessingException {
         LOG.info("about to get all the cuisines available in nyc..");
-        String decode64Value= new String(Base64.decodeBase64(lastEvaluatedKey), Charset.forName("UTF-8"));
         if(maxNum==null){
-           maxNum=MAX_NUM;   
+            maxNum=MAX_NUM;
+        }
+        String decode64Value=null;
+        if(lastEvaluatedKey!=null){
+            decode64Value= new String(Base64.decodeBase64(lastEvaluatedKey), Charset.forName("UTF-8"));
         }
         Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
         QueryResultPage<RestaurantEntity> results = dynamoDBRepository.getAllCuisines(this.dynamoDBMapper, startToken, maxNum);
-
         try {
             JSONObject res = new JSONObject();
             ArrayList<String> resultList = (ArrayList<String>) results.getResults().stream().map(RestaurantEntity::getCuisine).collect(Collectors.toList());
@@ -64,12 +65,15 @@ public class RestaurantAPIApplicationController {
 
     @GetMapping("/getTopRestaurantsBasedOnRating")
     public String getTopRestaurantsBasedOnRating(@RequestParam(required = false, name="rating") String rating, @RequestParam(required = false, name="maxNum") Integer maxNum, @RequestParam(required = false, name="lastEvaluatedKey") String lastEvaluatedKey){
-        String decode64Value= new String(Base64.decodeBase64(lastEvaluatedKey), Charset.forName("UTF-8"));
+        if(maxNum==null){
+            maxNum=MAX_NUM;
+        }
+        String decode64Value=null;
+        if(lastEvaluatedKey!=null){
+            decode64Value= new String(Base64.decodeBase64(lastEvaluatedKey), Charset.forName("UTF-8"));
+        }
         Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
         ScanResultPage<RestaurantEntity> results = dynamoDBRepository.getTopRestaurantsBasedOnRating(rating, startToken, maxNum, this.dynamoDBMapper);
-        if(maxNum==null){
-           maxNum=MAX_NUM;   
-        }
        try {
            JSONObject res = new JSONObject();
            ArrayList<Map<String, String>> resultList = (ArrayList<Map<String, String>>) results.getResults().stream().map((result) -> {
