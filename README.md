@@ -18,7 +18,7 @@
 
 - Global Secondary Index: cuisine-global - This is just a flag variable to indicate whether this paticular cuisine has been already marked in DynamoDB to query all cuisines efficiently without scanning the whole table 
 
-**Using AWS API Gateway + AWS Lambda(with Springboot) + DynamoDB + Elastic Search deployed via AWS CDK**
+**Using AWS API Gateway + AWS Lambda(with Springboot) + DynamoDB via AWS CDK**
 
 - CDK has only Lambda stack that allows Lambda to access to DynamoDB, APIGateway, and Elastic Search.
 - The Lambda hander has a customized APIGatewayProxyResponseEvent handler that is used for routing different API endpoint(API Gateway resource) 
@@ -49,10 +49,7 @@
 ```
 
 
-
-**Updates** 
-
-Noticed that there are not many resources available for Springboot + Lambda + API Gateway:
+I noticed that there are not many resources available for Springboot + Lambda + API Gateway:
 
 I am sharing POM file so anyone who wants to create a quick project can use it. 
 
