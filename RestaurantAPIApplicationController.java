@@ -9,14 +9,19 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.gwsoft.restaurantAPI.activity.RestaurantService;
+import com.gwsoft.restaurantAPI.model.PaginatedDTO;
+import com.gwsoft.restaurantAPI.model.RestaurantDTO;
 import com.gwsoft.restaurantAPI.model.RestaurantEntity;
 import com.gwsoft.restaurantAPI.repository.DynamoDBRepository;
 import org.apache.commons.codec.binary.Base64;
 import org.json.simple.JSONObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,29 +69,10 @@ public class RestaurantAPIApplicationController {
     }
 
     @GetMapping("/getTopRestaurantsBasedOnRating")
-    public String getTopRestaurantsBasedOnRating(@RequestParam(required = false, name="rating") String rating, @RequestParam(required = false, name="maxNum") Integer maxNum, @RequestParam(required = false, name="lastEvaluatedKey") String lastEvaluatedKey){
-        if(maxNum==null){
-            maxNum=MAX_NUM;
-        }
-        String decode64Value=null;
-        if(lastEvaluatedKey!=null){
-            decode64Value= new String(Base64.decodeBase64(lastEvaluatedKey), Charset.forName("UTF-8"));
-        }
-        Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
-        ScanResultPage<RestaurantEntity> results = dynamoDBRepository.getTopRestaurantsBasedOnRating(rating, startToken, maxNum, this.dynamoDBMapper);
+    public ResponseEntity<PaginatedDTO> getTopRestaurantsBasedOnRating(@RequestParam(required = false, name="rating") String rating, @RequestParam(required = false, name="maxNum") Integer maxNum, @RequestParam(required = false, name="lastEvaluatedKey") String lastEvaluatedKey) throws UnsupportedEncodingException {
        try {
-           JSONObject res = new JSONObject();
-           ArrayList<Map<String, String>> resultList = (ArrayList<Map<String, String>>) results.getResults().stream().map((result) -> {
-               Map<String, String> obj = new HashMap<>();
-               obj.put("cuisine", result.getCuisine());
-               obj.put("rating", result.getRating().toString());
-               obj.put("restaurant", result.getName());
-               return obj;
-           }).collect(Collectors.toList());
-           res.put("result", resultList);
-           Map<String, AttributeValue> lastToken= results.getLastEvaluatedKey();
-           res.put("lastEvaluatedKey",  Base64.encodeBase64String(gsonHelper.toJson(lastToken).getBytes("UTF-8")));
-           return res.toString();
+           PaginatedDTO restaurantList = restaurantService.ListRestaurantsBasedOnRating(maxNum, lastEvaluatedKey, rating);
+           return ResponseEntity.ok(restaurantList);
        }catch (Exception e){
            LOG.info("error:"+e);
            throw new RuntimeException(e);
