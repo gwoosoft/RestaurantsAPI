@@ -35,12 +35,15 @@ public class RestaurantAPIApplicationController {
     private final Gson gsonHelper = new Gson();
     private final Integer MAX_NUM = 1000;
 
+    private final RestaurantService restaurantService;
+
     private static final Logger LOG = LogManager.getLogger(RestaurantAPIApplicationController.class);
 
     public RestaurantAPIApplicationController() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
         this.dynamoDBMapper = new DynamoDBMapper(client);
         this.dynamoDBRepository= new DynamoDBRepository();
+        this.restaurantService = new RestaurantService(dynamoDBRepository);
     }
 
     @GetMapping("/getAllCuisines")
