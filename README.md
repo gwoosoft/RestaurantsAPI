@@ -10,6 +10,8 @@
 - Lombok is not used in this project.
 
 **TODO: adding service layer to restcontroller and adding some unit test**
+- Added Service Layer and created DTO class. Check `getTopRestaurantsBasedOnRating` to see the updates.
+- `getAllCuisines` still needs to be updated with service layer
 
 **DynamoDB table schema**
 - PrimaryKey: cuisine
