@@ -57,14 +57,15 @@ public class RestaurantService {
         var restaurantDtoList = new ArrayList<RestaurantDTO>();
         var restaurantIterator = results.getResults().iterator();
         try{
+            
             while(restaurantIterator.hasNext()){
                 restaurantDtoList.add(restaurantIterator.next().asDTO());
             }
+            
             Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
             String lastToken = Base64.encodeBase64String(gsonHelper.toJson(resultsLastEvaluatedKey).getBytes("UTF-8"));
             PaginatedDTO paginatedDTO = new PaginatedDTO(restaurantDtoList, lastToken);
             return paginatedDTO;
-
         }catch (Exception e){
             LOG.info("error:"+e);
             throw new RuntimeException(e);
