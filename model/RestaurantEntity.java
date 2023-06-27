@@ -84,4 +84,17 @@ public class RestaurantEntity {
     public void setCuisineGlobal(Integer cuisineGlobal) {
         this.cuisineGlobal = cuisineGlobal;
     }
+
+    public RestaurantDTO asDTO(){
+        RestaurantDTO dto = new RestaurantDTO();
+        dto.setCuisine(this.cuisine);
+        dto.setAddress1(this.address1);
+        dto.setId(this.id);
+        dto.setPhone(this.phone);
+        dto.setRating(this.rating);
+        dto.setReviewCount(this.reviewCount);
+        dto.setName(this.name);
+        dto.setCuisineGlobal(this.cuisineGlobal);
+        return dto;
+    }
 }
