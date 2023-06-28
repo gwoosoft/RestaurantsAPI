@@ -2,6 +2,8 @@ package com.gwsoft.restaurantAPI.model;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 
+import java.time.temporal.ChronoUnit;
+
 @DynamoDBTable(tableName="nyc-restaurants")
 public class RestaurantEntity {
     private String cuisine; // we want to set this as primary key to do pagination
@@ -85,7 +87,7 @@ public class RestaurantEntity {
         this.cuisineGlobal = cuisineGlobal;
     }
 
-    public RestaurantDTO asDTO(){
+    public RestaurantDTO asRestaurantDTO(){
         RestaurantDTO dto = new RestaurantDTO();
         dto.setCuisine(this.cuisine);
         dto.setAddress1(this.address1);
@@ -95,6 +97,12 @@ public class RestaurantEntity {
         dto.setReviewCount(this.reviewCount);
         dto.setName(this.name);
         dto.setCuisineGlobal(this.cuisineGlobal);
+        return dto;
+    }
+
+    public CuisineDTO asCuisineDTO(){
+        CuisineDTO dto = new CuisineDTO();
+        dto.setCuisine(this.cuisine);
         return dto;
     }
 }
