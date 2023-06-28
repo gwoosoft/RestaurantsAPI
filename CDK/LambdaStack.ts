@@ -73,8 +73,9 @@ export class LambdaStack extends Stack {
     }); // to add current version to activate snapstart
     const getAllCuisines = restApi.root.addResource('getAllCuisines'); 
     const getTopRestaurantsBasedOnRating = restApi.root.addResource("getTopRestaurantsBasedOnRating");
+    const getTopRestaurantsBasedOnRatingByCuisine = restApi.root.addResource("getTopRestaurantsBasedOnRatingByCuisine");
     getAllCuisines.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getAllCuisines
     getTopRestaurantsBasedOnRating.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRating
+    getTopRestaurantsBasedOnRatingByCuisine.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRatingByCuisine
   }
 }
-
