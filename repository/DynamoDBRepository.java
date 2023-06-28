@@ -12,13 +12,25 @@ import java.util.Map;
 
 public class DynamoDBRepository {
 
-    public QueryResultPage<RestaurantEntity> getCuisineBasedOnRating(String cuisine, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum, DynamoDBMapper dynamoDBMapper){
+    /**
+     *
+     * @param cuisine
+     * @param lastEvaluatedKey
+     * @param maxNum
+     * @param dynamoDBMapper
+     * @return
+     */
+    public QueryResultPage<RestaurantEntity> getCuisineBasedOnRating(String cuisine, String rating, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum, DynamoDBMapper dynamoDBMapper){
 
         RestaurantEntity restaurants = new RestaurantEntity();
         restaurants.setCuisine(cuisine);
+
+        double doubledRating = Double.parseDouble(rating);
+        String convertedRating = Double.toString(doubledRating);
+
         Condition rangeKeyCondition = new Condition()
                 .withComparisonOperator(ComparisonOperator.GE)
-                .withAttributeValueList(new AttributeValue().withN("4.6"));
+                .withAttributeValueList(new AttributeValue().withN(convertedRating));
 
         DynamoDBQueryExpression<RestaurantEntity> queryExpression = new DynamoDBQueryExpression<RestaurantEntity>()
                 .withExclusiveStartKey(lastEvaluatedKey)
@@ -40,7 +52,6 @@ public class DynamoDBRepository {
      * @return  ScanResultPage<RestaurantEntity>
      */
     public ScanResultPage<RestaurantEntity> getTopRestaurantsBasedOnRating(String value, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum, DynamoDBMapper dynamoDBMapper) {
-
         HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
         expressionAttributeValues.put(":rating", new AttributeValue().withN(value));
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
@@ -49,7 +60,7 @@ public class DynamoDBRepository {
                 .withFilterExpression("rating > :rating")
                 .withExpressionAttributeValues(expressionAttributeValues);
 
-        ScanResultPage<RestaurantEntity> scanResultPage = dynamoDBMapper.scanPage(RestaurantEntity.class, scanExpression);
+        ScanResultPage<RestaurantEntity> scanResultPage = dynamoDBMapper.scanPage(RestaurantEntity.class , scanExpression);
 
         return scanResultPage;
     };
