@@ -6,12 +6,8 @@
 
 
 **Not in this respository**
-- Elastic Search Usage - Still thinking about whether to use Elastic Search or not for caching purpose. Initially it was used for chatbot where a user query to get 3-5 restaurants per cuisine. 
+- Elastic Search Usage - Still thinking about whether to use Elastic Search or not for caching purpose(or LSU cache for data sync mechanism to update the most latest restaurants as there is no way there will be 100 restaurants changes per week in nyc.
 - Lombok is not used in this project.
-
-**TODO: adding service layer to restcontroller and adding some unit test**
-- Added Service Layer and created DTO class. Check `getTopRestaurantsBasedOnRating` to see the updates.
-- `getAllCuisines` still needs to be updated with service layer
 
 **DynamoDB table schema**
 - PrimaryKey: cuisine
@@ -29,25 +25,46 @@
    - GET 
       - /getAllCuisines?maxNum={Integer}&lastEvaluatedKey={String}: Take all the cuisines available in NYC, it has pagination and lastEvaluatedKey response with Base64 encoded
       - /getTopRestaurantsBasedOnRating?maxNum={Integer}&lastEvaluatedKey={String}&rating={String} : Take all the restaurants equal or above the given rating, it has pagination and lastEvaluatedKey response with Base64 encoded
+      - /getTopRestaurantsBasedOnRatingByCuisine?cusine?{string}&maxNum={Integer}&lastEvaluatedKey={String}&rating={String} : based on rating by the cuisine, it has pagination and lastEvaluatedKey response with Base64 encoded
       
 ```
 {
-  "statusCode": 200,
-  "headers": {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "*",
-    "Access-Control-Allow-Headers": "Content-Type"
-  },
-  "multiValueHeaders": {
-    "Content-Length": [
-      "170"
+    "items": [
+        {
+            "cuisine": "korean",
+            "name": "Jongro BBQ",
+            "id": "FZpm4_fbd6P984foOUejWg",
+            "reviewCount": 2468,
+            "rating": 4.0,
+            "address1": "22 W 32nd St",
+            "zipCode": null,
+            "phone": "+12124732233",
+            "cuisineGlobal": null
+        },
+        {
+            "cuisine": "korean",
+            "name": "Bokki Seoul Food",
+            "id": "uC5_J2l9uwTleh7j5W__kg",
+            "reviewCount": 46,
+            "rating": 4.0,
+            "address1": "374 Pearl St",
+            "zipCode": null,
+            "phone": "+17182431342",
+            "cuisineGlobal": null
+        },
+        {
+            "cuisine": "korean",
+            "name": "Woorijip",
+            "id": "ogCC-lJJYnwXDvKGmKZ6Sw",
+            "reviewCount": 2847,
+            "rating": 4.0,
+            "address1": "12 W 32nd St",
+            "zipCode": null,
+            "phone": "+12122441115",
+            "cuisineGlobal": null
+        }
     ],
-    "Content-Type": [
-      "text/plain; charset=UTF-8"
-    ]
-  },
-  "body": "{\"result\":[\"american\",\"chinese\",\"japanese\"],\"lastEvaluatedKey\":\"eyJjdWlzaW5lLWdsb2JhbCI6eyJuIjoiMSJ9LCJuYW1lIjp7InMiOiJCZW5lbW9uIn0sImN1aXNpbmUiOnsicyI6ImphcGFuZXNlIn19\"}",
-  "base64Encoded": false
+    "lastTokens": "eyJyYXRpbmciOnsibiI6IjQifSwibmFtZSI6eyJzIjoiV29vcmlqaXAifSwiY3Vpc2luZSI6eyJzIjoia29yZWFuIn19"
 }
 ```
 
