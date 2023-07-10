@@ -39,9 +39,12 @@ public class DynamoDBRepository {
                 .withLimit(maxNum);
 
         queryExpression.setExclusiveStartKey(lastEvaluatedKey);
-        QueryResultPage<RestaurantEntity> queryPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
-
-        return queryPage;
+        try{
+            QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
+            return queryResultPage;
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -59,10 +62,12 @@ public class DynamoDBRepository {
                 .withLimit(maxNum)
                 .withFilterExpression("rating > :rating")
                 .withExpressionAttributeValues(expressionAttributeValues);
-
-        ScanResultPage<RestaurantEntity> scanResultPage = dynamoDBMapper.scanPage(RestaurantEntity.class , scanExpression);
-
-        return scanResultPage;
+        try{
+            ScanResultPage<RestaurantEntity> scanResultPage = dynamoDBMapper.scanPage(RestaurantEntity.class , scanExpression);
+            return scanResultPage;
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
     };
 
 
@@ -87,9 +92,9 @@ public class DynamoDBRepository {
             QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
             return queryResultPage;
         }catch(Exception e){
-            System.out.println("Error querying all cuisines available in NYC");
+            throw new RuntimeException(e);
         }
-        return null;
+
     };
 
 }
