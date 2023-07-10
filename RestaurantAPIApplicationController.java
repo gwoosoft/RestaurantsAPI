@@ -1,32 +1,17 @@
 package com.gwsoft.restaurantAPI;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
-import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.gwsoft.restaurantAPI.activity.RestaurantService;
 import com.gwsoft.restaurantAPI.model.PaginatedDTO;
-import com.gwsoft.restaurantAPI.model.RestaurantDTO;
-import com.gwsoft.restaurantAPI.model.RestaurantEntity;
-import com.gwsoft.restaurantAPI.repository.DynamoDBRepository;
-import org.apache.commons.codec.binary.Base64;
-import org.json.simple.JSONObject;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 public class RestaurantAPIApplicationController {
