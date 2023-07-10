@@ -1,8 +1,5 @@
 package com.gwsoft.restaurantAPI.activity;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
@@ -32,7 +29,6 @@ public class RestaurantService {
 
     public RestaurantService() {
         this.dynamoDBRepository = new DynamoDBRepository();
-        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
         this.restaurantServiceHelper = new RestaurantServiceHelper();
     }
 
