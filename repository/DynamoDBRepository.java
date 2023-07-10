@@ -1,9 +1,12 @@
 package com.gwsoft.restaurantAPI.repository;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
+import com.gwsoft.restaurantAPI.activity.RestaurantServiceHelper;
 import com.gwsoft.restaurantAPI.model.RestaurantEntity;
 
 
@@ -11,16 +14,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DynamoDBRepository {
+    private final DynamoDBMapper dynamoDBMapper;
+    public DynamoDBRepository() {
+        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
+        this.dynamoDBMapper = new DynamoDBMapper(client);
+    }
 
     /**
      *
      * @param cuisine
      * @param lastEvaluatedKey
      * @param maxNum
-     * @param dynamoDBMapper
      * @return
      */
-    public QueryResultPage<RestaurantEntity> getCuisineBasedOnRating(String cuisine, String rating, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum, DynamoDBMapper dynamoDBMapper){
+    public QueryResultPage<RestaurantEntity> getCuisineBasedOnRating(String cuisine, String rating, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum){
 
         RestaurantEntity restaurants = new RestaurantEntity();
         restaurants.setCuisine(cuisine);
@@ -39,22 +46,18 @@ public class DynamoDBRepository {
                 .withLimit(maxNum);
 
         queryExpression.setExclusiveStartKey(lastEvaluatedKey);
-        try{
-            QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
-            return queryResultPage;
-        }catch(Exception e){
-            throw new RuntimeException(e);
-        }
+        QueryResultPage<RestaurantEntity> queryPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
+
+        return queryPage;
     }
 
     /**
      * this method scan DB and return restaurants based on the rate user request
      *
      * @param  value a value of the rating of the restaurant
-     * @param  dynamoDBMapper
      * @return  ScanResultPage<RestaurantEntity>
      */
-    public ScanResultPage<RestaurantEntity> getTopRestaurantsBasedOnRating(String value, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum, DynamoDBMapper dynamoDBMapper) {
+    public ScanResultPage<RestaurantEntity> getTopRestaurantsBasedOnRating(String value, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum) {
         HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
         expressionAttributeValues.put(":rating", new AttributeValue().withN(value));
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
@@ -62,22 +65,20 @@ public class DynamoDBRepository {
                 .withLimit(maxNum)
                 .withFilterExpression("rating > :rating")
                 .withExpressionAttributeValues(expressionAttributeValues);
-        try{
-            ScanResultPage<RestaurantEntity> scanResultPage = dynamoDBMapper.scanPage(RestaurantEntity.class , scanExpression);
-            return scanResultPage;
-        }catch(Exception e){
-            throw new RuntimeException(e);
-        }
+
+        ScanResultPage<RestaurantEntity> scanResultPage = dynamoDBMapper.scanPage(RestaurantEntity.class , scanExpression);
+
+        return scanResultPage;
     };
 
 
     /**
-     * this method query DB and return all the cuisines available in nyc
      *
-     * @param  dynamoDBMapper
-     * @return  QueryResultPage
+     * @param lastEvaluatedKey
+     * @param maxNum
+     * @return QueryResultPage
      */
-    public QueryResultPage<RestaurantEntity> getAllCuisines(DynamoDBMapper dynamoDBMapper, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum) {
+    public QueryResultPage<RestaurantEntity> getAllCuisines(Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum) {
         RestaurantEntity restaurantEntity = new RestaurantEntity();
         restaurantEntity.setCuisineGlobal(1);
 
@@ -92,9 +93,9 @@ public class DynamoDBRepository {
             QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
             return queryResultPage;
         }catch(Exception e){
-            throw new RuntimeException(e);
+            System.out.println("Error querying all cuisines available in NYC");
         }
-
+        return null;
     };
 
 }
