@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class RestaurantService {
 
-    private final DynamoDBRepository dynamoDBRepository;
+    public DynamoDBRepository dynamoDBRepository;
     private final Integer MAX_NUM = 1000;
     private final Gson gsonHelper = new Gson();
 
@@ -30,6 +30,7 @@ public class RestaurantService {
     public RestaurantService() {
         this.dynamoDBRepository = new DynamoDBRepository();
         this.restaurantServiceHelper = new RestaurantServiceHelper();
+
     }
 
     private static final Logger LOG = LogManager.getLogger(RestaurantService.class);
@@ -60,6 +61,7 @@ public class RestaurantService {
 
         try{
             ArrayList<RestaurantDTO> restaurantDtoList = restaurantServiceHelper.getRestaurantDtoList(results);
+            LOG.debug("in RService restaurantDtoList:" + gsonHelper.toJson(restaurantDtoList));
             Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
             String lastToken = Base64.encodeBase64String(gsonHelper.toJson(resultsLastEvaluatedKey).getBytes("UTF-8"));
             PaginatedDTO paginatedDTO = new PaginatedDTO(restaurantDtoList, lastToken);
