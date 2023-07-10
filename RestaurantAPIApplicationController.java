@@ -47,24 +47,11 @@ public class RestaurantAPIApplicationController {
     }
 
     @GetMapping("/getAllCuisines")
-    public String getAllCuisines(@RequestParam(required = false, name="maxNum") Integer maxNum, @RequestParam(required = false, name="lastEvaluatedKey") String lastEvaluatedKey) throws JsonProcessingException {
+    public ResponseEntity<PaginatedDTO> getAllCuisines(@RequestParam(required = false, name="maxNum") Integer maxNum, @RequestParam(required = false, name="lastEvaluatedKey") String lastEvaluatedKey) throws JsonProcessingException {
         LOG.info("about to get all the cuisines available in nyc..");
-        if(maxNum==null){
-            maxNum=MAX_NUM;
-        }
-        String decode64Value=null;
-        if(lastEvaluatedKey!=null){
-            decode64Value= new String(Base64.decodeBase64(lastEvaluatedKey), Charset.forName("UTF-8"));
-        }
-        Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
-        QueryResultPage<RestaurantEntity> results = dynamoDBRepository.getAllCuisines(this.dynamoDBMapper, startToken, maxNum);
         try {
-            JSONObject res = new JSONObject();
-            ArrayList<String> resultList = (ArrayList<String>) results.getResults().stream().map(RestaurantEntity::getCuisine).collect(Collectors.toList());
-            res.put("result", resultList);
-            Map<String, AttributeValue> lastToken= results.getLastEvaluatedKey();
-            res.put("lastEvaluatedKey", Base64.encodeBase64String(gsonHelper.toJson(lastToken).getBytes("UTF-8")));
-        return res.toString();
+            PaginatedDTO restaurantList = restaurantService.ListCuisines(maxNum, lastEvaluatedKey);
+            return ResponseEntity.ok(restaurantList);
         }catch (Exception e){
             LOG.info("error:"+e);
             throw new RuntimeException(e);
@@ -73,12 +60,23 @@ public class RestaurantAPIApplicationController {
 
     @GetMapping("/getTopRestaurantsBasedOnRating")
     public ResponseEntity<PaginatedDTO> getTopRestaurantsBasedOnRating(@RequestParam(required = false, name="rating") String rating, @RequestParam(required = false, name="maxNum") Integer maxNum, @RequestParam(required = false, name="lastEvaluatedKey") String lastEvaluatedKey) throws UnsupportedEncodingException {
-       try {
-           PaginatedDTO restaurantList = restaurantService.ListRestaurantsBasedOnRating(maxNum, lastEvaluatedKey, rating);
-           return ResponseEntity.ok(restaurantList);
-       }catch (Exception e){
-           LOG.info("error:"+e);
-           throw new RuntimeException(e);
-       }
+        try {
+            PaginatedDTO restaurantList = restaurantService.ListRestaurantsBasedOnRating(maxNum, lastEvaluatedKey, rating);
+            return ResponseEntity.ok(restaurantList);
+        }catch (Exception e){
+            LOG.info("error:"+e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/getTopRestaurantsBasedOnRatingByCuisine")
+    public ResponseEntity<PaginatedDTO> getTopRestaurantsBasedOnRatingByCuisine(@RequestParam(required = false, name="rating") String cuisine, @RequestParam(required = false, name="rating") String rating, @RequestParam(required = false, name="maxNum") Integer maxNum, @RequestParam(required = false, name="lastEvaluatedKey") String lastEvaluatedKey) throws UnsupportedEncodingException {
+        try {
+            PaginatedDTO restaurantList = restaurantService.ListRestaurantsBasedOnRatingByCuisine(cuisine, maxNum, lastEvaluatedKey, rating);
+            return ResponseEntity.ok(restaurantList);
+        }catch (Exception e){
+            LOG.info("error:"+e);
+            throw new RuntimeException(e);
+        }
     }
 }
