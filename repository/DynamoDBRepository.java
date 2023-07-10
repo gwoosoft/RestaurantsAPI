@@ -44,11 +44,13 @@ public class DynamoDBRepository {
                 .withHashKeyValues(restaurants)
                 .withRangeKeyCondition("rating",rangeKeyCondition)
                 .withLimit(maxNum);
-
-        queryExpression.setExclusiveStartKey(lastEvaluatedKey);
-        QueryResultPage<RestaurantEntity> queryPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
-
-        return queryPage;
+        
+        try{
+            QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
+            return queryResultPage;
+        }catch(Exception e){
+            throw new RuntimeException("Fetching Error from DB:" + e);
+        }
     }
 
     /**
@@ -65,10 +67,12 @@ public class DynamoDBRepository {
                 .withLimit(maxNum)
                 .withFilterExpression("rating > :rating")
                 .withExpressionAttributeValues(expressionAttributeValues);
-
-        ScanResultPage<RestaurantEntity> scanResultPage = dynamoDBMapper.scanPage(RestaurantEntity.class , scanExpression);
-
-        return scanResultPage;
+        try{
+            ScanResultPage<RestaurantEntity> scanResultPage = dynamoDBMapper.scanPage(RestaurantEntity.class , scanExpression);
+            return scanResultPage;
+        }catch(Exception e){
+            throw new RuntimeException("Fetching Error from DB:" + e);
+        }
     };
 
 
@@ -93,9 +97,8 @@ public class DynamoDBRepository {
             QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
             return queryResultPage;
         }catch(Exception e){
-            System.out.println("Error querying all cuisines available in NYC");
+            throw new RuntimeException("Fetching Error from DB:" + e);
         }
-        return null;
     };
 
 }
