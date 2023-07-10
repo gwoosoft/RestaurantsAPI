@@ -25,7 +25,6 @@ import java.util.Map;
 public class RestaurantService {
 
     private final DynamoDBRepository dynamoDBRepository;
-    private final DynamoDBMapper dynamoDBMapper;
     private final Integer MAX_NUM = 1000;
     private final Gson gsonHelper = new Gson();
 
@@ -34,7 +33,6 @@ public class RestaurantService {
     public RestaurantService() {
         this.dynamoDBRepository = new DynamoDBRepository();
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
-        this.dynamoDBMapper = new DynamoDBMapper(client);
         this.restaurantServiceHelper = new RestaurantServiceHelper();
     }
 
@@ -61,7 +59,7 @@ public class RestaurantService {
         }
 
         Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
-        QueryResultPage<RestaurantEntity> results = dynamoDBRepository.getCuisineBasedOnRating(cuisine, rating, startToken, maxNum, this.dynamoDBMapper);
+        QueryResultPage<RestaurantEntity> results = dynamoDBRepository.getCuisineBasedOnRating(cuisine, rating, startToken, maxNum);
         LOG.debug(results.toString());
 
         try{
@@ -97,7 +95,7 @@ public class RestaurantService {
 
         Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
 
-        ScanResultPage<RestaurantEntity> results = dynamoDBRepository.getTopRestaurantsBasedOnRating(rating, startToken, maxNum, this.dynamoDBMapper);
+        ScanResultPage<RestaurantEntity> results = dynamoDBRepository.getTopRestaurantsBasedOnRating(rating, startToken, maxNum);
 
 
 
@@ -139,7 +137,7 @@ public class RestaurantService {
 
         Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
 
-        QueryResultPage<RestaurantEntity> results = dynamoDBRepository.getAllCuisines(this.dynamoDBMapper, startToken, maxNum);
+        QueryResultPage<RestaurantEntity> results = dynamoDBRepository.getAllCuisines(startToken, maxNum);
 
         try{
             ArrayList<CuisineDTO> restaurantDtoList = restaurantServiceHelper.getCuisineDtoList(results);
