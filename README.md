@@ -6,7 +6,7 @@
 
 
 **Not in this respository**
-- Elastic Search Usage - Still thinking about whether to use Elastic Search or not for caching purpose(or LSU cache for data sync mechanism to update the most latest restaurants as there is no way there will be 100 restaurants changes per week in nyc.
+- Elastic Search Usage - Still thinking about whether to use Elastic Search or not for caching purpose(or LSU cache for data sync mechanism to update the most latest restaurants as there is no way there will be 100 restaurants changes per week in nyc. A problem with this approach is that I would not be able to check when a restaurant goes down.
 - Lombok is not used in this project.
 
 **DynamoDB table schema**
