@@ -16,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -42,10 +43,13 @@ public class RestaurantServiceTest {
         List<RestaurantEntity> results = createMockQueryResultPage();
         queryResultPage.setResults(results);
 
-        var expectedValue = new ArrayList<CuisineDTO>();
+
         var val = new CuisineDTO();
         val.setCuisine("chinese");
-        expectedValue.add(val);
+        var expectedValue = new ArrayList<CuisineDTO>(
+                Arrays.asList(val)
+        );
+        
 
         when(dynamoDBRepository.getAllCuisines(null,1)).thenReturn(queryResultPage);
         when(restaurantServiceHelper.getRestaurantDtoList(queryResultPage)).thenCallRealMethod();
