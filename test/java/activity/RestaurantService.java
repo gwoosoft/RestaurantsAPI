@@ -49,7 +49,8 @@ public class RestaurantServiceTest {
         var expectedValue = new ArrayList<CuisineDTO>(
                 Arrays.asList(val)
         );
-        
+        var expectedReturnValue = new PaginatedDTO(expectedValue, "bnVsbA\u003d\u003d");
+
 
         when(dynamoDBRepository.getAllCuisines(null,1)).thenReturn(queryResultPage);
         when(restaurantServiceHelper.getRestaurantDtoList(queryResultPage)).thenCallRealMethod();
@@ -57,9 +58,7 @@ public class RestaurantServiceTest {
         PaginatedDTO returnValue = restaurantService.ListCuisines(1, null);
 
         Assert.assertNotNull(returnValue);
-
-
-        var expectedReturnValue = new PaginatedDTO(expectedValue, "bnVsbA\u003d\u003d");
+        
         var actual = gsonHelper.toJson(returnValue.getItems());
         var expected = gsonHelper.toJson(expectedReturnValue.getItems());
 
