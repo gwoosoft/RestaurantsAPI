@@ -29,10 +29,13 @@ public class RestaurantService {
     private final Integer MAX_NUM = 1000;
     private final Gson gsonHelper = new Gson();
 
-    public RestaurantService(DynamoDBRepository dynamoDBRepository) {
-        this.dynamoDBRepository = dynamoDBRepository;
+    private final RestaurantServiceHelper restaurantServiceHelper;
+
+    public RestaurantService() {
+        this.dynamoDBRepository = new DynamoDBRepository();
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
         this.dynamoDBMapper = new DynamoDBMapper(client);
+        this.restaurantServiceHelper = new RestaurantServiceHelper();
     }
 
     private static final Logger LOG = LogManager.getLogger(RestaurantService.class);
@@ -62,7 +65,7 @@ public class RestaurantService {
         LOG.debug(results.toString());
 
         try{
-            ArrayList<RestaurantDTO> restaurantDtoList = new RestaurantServiceHelper().getRestaurantDtoList(results);
+            ArrayList<RestaurantDTO> restaurantDtoList = restaurantServiceHelper.getRestaurantDtoList(results);
             Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
             String lastToken = Base64.encodeBase64String(gsonHelper.toJson(resultsLastEvaluatedKey).getBytes("UTF-8"));
             PaginatedDTO paginatedDTO = new PaginatedDTO(restaurantDtoList, lastToken);
@@ -87,6 +90,7 @@ public class RestaurantService {
         }
 
         String decode64Value=null;
+
         if(lastEvaluatedKey!=null){
             decode64Value= new String(Base64.decodeBase64(lastEvaluatedKey), Charset.forName("UTF-8"));
         }
@@ -95,9 +99,10 @@ public class RestaurantService {
 
         ScanResultPage<RestaurantEntity> results = dynamoDBRepository.getTopRestaurantsBasedOnRating(rating, startToken, maxNum, this.dynamoDBMapper);
 
-        ArrayList<RestaurantDTO> restaurantDtoList = new ArrayList<RestaurantDTO>();
+
 
         var restaurantIterator = results.getResults().iterator();
+        ArrayList<RestaurantDTO> restaurantDtoList = new ArrayList<RestaurantDTO>();
 
         try{
             while(restaurantIterator.hasNext()){
@@ -121,26 +126,28 @@ public class RestaurantService {
      * @return
      */
     public PaginatedDTO ListCuisines(Integer maxNum, String lastEvaluatedKey) {
+
         if(maxNum==null){
             maxNum=MAX_NUM;
         }
 
         String decode64Value=null;
+
         if(lastEvaluatedKey!=null){
             decode64Value= new String(Base64.decodeBase64(lastEvaluatedKey), Charset.forName("UTF-8"));
         }
 
         Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
+
         QueryResultPage<RestaurantEntity> results = dynamoDBRepository.getAllCuisines(this.dynamoDBMapper, startToken, maxNum);
 
         try{
-            ArrayList<CuisineDTO> restaurantDtoList = new RestaurantServiceHelper().getCuisineDtoList(results);
+            ArrayList<CuisineDTO> restaurantDtoList = restaurantServiceHelper.getCuisineDtoList(results);
             Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
             String lastToken = Base64.encodeBase64String(gsonHelper.toJson(resultsLastEvaluatedKey).getBytes("UTF-8"));
             PaginatedDTO paginatedDTO = new PaginatedDTO(restaurantDtoList, lastToken);
             return paginatedDTO;
         }catch (Exception e){
-            LOG.info("error:"+e);
             throw new RuntimeException(e);
         }
     }
