@@ -1,7 +1,6 @@
 package com.gwsoft.restaurantAPI.repository;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.gwsoft.restaurantAPI.model.RestaurantEntity;
 import org.junit.Assert;
@@ -38,16 +37,6 @@ public class DynamoDBRepositoryTest {
         QueryResultPage<RestaurantEntity> queryResultPage = new QueryResultPage<>();
         List<RestaurantEntity> results = createMockQueryResultPage();
         queryResultPage.setResults(results);
-
-        RestaurantEntity restaurantEntity = new RestaurantEntity();
-        restaurantEntity.setCuisineGlobal(1);
-
-        DynamoDBQueryExpression<RestaurantEntity> queryExpression =  new DynamoDBQueryExpression<RestaurantEntity>()
-                .withExclusiveStartKey(null)
-                .withHashKeyValues(restaurantEntity)
-                .withLimit(1)
-                .withIndexName("cuisine-global-cuisine-index")
-                .withConsistentRead(false);
 
         // Set expectation
         Mockito.when(dynamoDBMapper.queryPage(eq(RestaurantEntity.class), Mockito.any())).thenReturn(queryResultPage);
