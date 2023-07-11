@@ -32,7 +32,6 @@ public class DynamoDBRepositoryTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
-        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
     }
 
     @Test
