@@ -43,14 +43,7 @@ public class RestaurantServiceTest {
         List<RestaurantEntity> results = createMockQueryResultPage();
         queryResultPage.setResults(results);
 
-
-        var val = new CuisineDTO();
-        val.setCuisine("chinese");
-        var expectedValue = new ArrayList<CuisineDTO>(
-                Arrays.asList(val)
-        );
-        var expectedReturnValue = new PaginatedDTO(expectedValue, "bnVsbA\u003d\u003d");
-
+        var expectedReturnValue = createMockPaginatedDTO();
 
         when(dynamoDBRepository.getAllCuisines(null,1)).thenReturn(queryResultPage);
         when(restaurantServiceHelper.getRestaurantDtoList(queryResultPage)).thenCallRealMethod();
@@ -58,7 +51,7 @@ public class RestaurantServiceTest {
         PaginatedDTO returnValue = restaurantService.ListCuisines(1, null);
 
         Assert.assertNotNull(returnValue);
-        
+
         var actual = gsonHelper.toJson(returnValue.getItems());
         var expected = gsonHelper.toJson(expectedReturnValue.getItems());
 
@@ -66,6 +59,10 @@ public class RestaurantServiceTest {
         System.out.println("show me expected:" + expected);
 
         Assert.assertEquals(expected, actual);
+
+        var actualPaginatedDTO = gsonHelper.toJson(returnValue);
+        var expectedPaginatedDTO = gsonHelper.toJson(expectedReturnValue);
+        Assert.assertEquals(expectedPaginatedDTO, actualPaginatedDTO);
     }
 
     public List createMockQueryResultPage(){
@@ -75,5 +72,14 @@ public class RestaurantServiceTest {
         List<RestaurantEntity> results = new ArrayList<>();
         results.add(mockData);
         return results;
+    }
+
+    public PaginatedDTO createMockPaginatedDTO(){
+        var val = new CuisineDTO();
+        val.setCuisine("chinese");
+        var expectedValue = new ArrayList<CuisineDTO>(
+                Arrays.asList(val)
+        );
+        return new PaginatedDTO(expectedValue, "bnVsbA\u003d\u003d");
     }
 }
