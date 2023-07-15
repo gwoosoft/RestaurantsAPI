@@ -6,21 +6,27 @@
 - /more APIs are coming.. Thinking about having a service where ML gives recommendation based on what user went in the past by adding more field in an existing DB
 
 
+**Note**
+
+- Only `/getAllCuisines` API has error handlings.
+  1. either unknown error
+  1. dynamoDb query error (when you put wrong hashkey or wrong conditional expression
+- As there is no writing action, I did not account for concurrency. However, it is in the plan to implement opimisitic locking with dynamoDB for some of future CRUD actions
+
+
 **Not in this respository**
 - Elastic Search Usage - Still thinking about whether to use Elastic Search or not for caching purpose(or LSU cache for data sync mechanism to update the most latest restaurants as there is no way there will be 100 restaurants changes per week in nyc. A problem with this approach is that I would not be able to check when a restaurant goes down.
-- Lombok is not used in this project.
 
 **DynamoDB table schema**
 - PrimaryKey: cuisine
 - SortKey: name(restaurant name)
 - Local Secondary Index: rating - To query rating 
 - Other attributes as address, phone number, radius, and etc. 
-
 - Global Secondary Index: cuisine-global - This is just a flag variable to indicate whether this paticular cuisine has been already marked in DynamoDB to query all cuisines efficiently without scanning the whole table 
 
-**Using AWS API Gateway + AWS Lambda(with Springboot) + DynamoDB via AWS CDK**
+**Using AWS API Gateway + AWS Lambda(with Springboot) + DynamoDB and infrastructure created via AWS CDK**
 
-- CDK has only Lambda stack that allows Lambda to access to DynamoDB, APIGateway, and Elastic Search.
+- CDK has only Lambda stack that allows Lambda to access to DynamoDB, APIGateway, and Elastic Search(commented it out).
 - The Lambda hander has a customized APIGatewayProxyResponseEvent handler that is used for routing different API endpoint(API Gateway resource) 
    - Eventually will create another Lambda endpoints when there are more microservices 
    - GET 
@@ -70,13 +76,11 @@
 ```
 
 
-I noticed that there are not many resources available for Springboot + Lambda + API Gateway:
-
-I am sharing POM file so anyone who wants to create a quick project can use it. 
+I noticed that there are not many resources available for Springboot + Lambda + API Gateway so I am sharing POM file so anyone who wants to create a quick project can use it. 
 
 Instead of manually handling routing - decided to utilize Springboot `Restcontroller` to automatically route with API Gateway Proxy 
 - `SteamLambdaHandler` takes the Springboot application and route with the power of beans
-- It is definetely overkill for the routing but this application will have more Lambda endpoints and this will make the application more dynamic
+- It is definetely overkill just for the routing but this application will have more Lambda endpoints and this will make the application more dynamic, meanwhile migration work from Lambda to something else will be a lot easier. 
 - Springboot3 integration with Lambda reduces the cold start time. 
 
       - provisional concurrency can reduce start time, but this is not free tier ;).
