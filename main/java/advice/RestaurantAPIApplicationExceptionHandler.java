@@ -23,7 +23,8 @@ public class RestaurantAPIApplicationExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public Map<String, String> handleBusinessException(RuntimeException ex) {
         Map<String, String> errorMap = new HashMap<>();
-        errorMap.put("errorMessage", ex.getMessage());
+//        errorMap.put("errorMessage", ex.getMessage()); we should probably do not want to give actual backend error details to client
+        errorMap.put("errorMessage", "it is unknown exception, please contact to server admin");
         return errorMap;
     }
 }
