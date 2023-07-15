@@ -5,6 +5,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.gwsoft.restaurantAPI.error.CuisineNotFoundException;
+import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
 import com.gwsoft.restaurantAPI.model.CuisineDTO;
 import com.gwsoft.restaurantAPI.model.PaginatedDTO;
 import com.gwsoft.restaurantAPI.model.RestaurantDTO;
@@ -14,8 +16,10 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,8 +68,7 @@ public class RestaurantService {
             LOG.debug("in RService restaurantDtoList:" + gsonHelper.toJson(restaurantDtoList));
             Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
             String lastToken = Base64.encodeBase64String(gsonHelper.toJson(resultsLastEvaluatedKey).getBytes("UTF-8"));
-            PaginatedDTO paginatedDTO = new PaginatedDTO(restaurantDtoList, lastToken);
-            return paginatedDTO;
+            return PaginatedDTO.builder().items(Collections.singletonList(restaurantDtoList)).lastTokens(lastToken).build();
         }catch (Exception e){
             LOG.info("error:"+e);
             throw new RuntimeException(e);
@@ -106,9 +109,7 @@ public class RestaurantService {
             }
             Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
             String lastToken = Base64.encodeBase64String(gsonHelper.toJson(resultsLastEvaluatedKey).getBytes("UTF-8"));
-            PaginatedDTO paginatedDTO = new PaginatedDTO(restaurantDtoList, lastToken);
-            return paginatedDTO;
-
+            return PaginatedDTO.builder().items(Collections.singletonList(restaurantDtoList)).lastTokens(lastToken).build();
         }catch (Exception e){
             LOG.info("error:"+e);
             throw new RuntimeException(e);
@@ -121,7 +122,7 @@ public class RestaurantService {
      * @param lastEvaluatedKey
      * @return
      */
-    public PaginatedDTO ListCuisines(Integer maxNum, String lastEvaluatedKey) {
+    public PaginatedDTO ListCuisines(Integer maxNum, String lastEvaluatedKey) throws UnsupportedEncodingException, CuisineNotFoundException {
 
         if(maxNum==null){
             maxNum=MAX_NUM;
@@ -135,16 +136,23 @@ public class RestaurantService {
 
         Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
 
-        QueryResultPage<RestaurantEntity> results = dynamoDBRepository.getAllCuisines(startToken, maxNum);
+        QueryResultPage<RestaurantEntity> results;
 
-        try{
+
+        try {
+            results = dynamoDBRepository.getAllCuisines(startToken, maxNum);
             ArrayList<CuisineDTO> restaurantDtoList = restaurantServiceHelper.getCuisineDtoList(results);
             Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
             String lastToken = Base64.encodeBase64String(gsonHelper.toJson(resultsLastEvaluatedKey).getBytes("UTF-8"));
-            PaginatedDTO paginatedDTO = new PaginatedDTO(restaurantDtoList, lastToken);
-            return paginatedDTO;
-        }catch (Exception e){
-            throw new RuntimeException(e);
+            return PaginatedDTO.builder().items(Collections.singletonList(restaurantDtoList)).lastTokens(lastToken).build();
+        }
+        catch (RestaurantAPIErrorException e){
+            if(e instanceof RestaurantAPIErrorException){
+                throw new CuisineNotFoundException("There was error Fetching DB, Contact Server manager");
+            }
+            else{
+                throw new RuntimeException("some unknown Error!!");
+            }
         }
     }
 
