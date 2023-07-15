@@ -2,6 +2,7 @@ package com.gwsoft.restaurantAPI.activity;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.google.gson.Gson;
+import com.gwsoft.restaurantAPI.error.CuisineNotFoundException;
 import com.gwsoft.restaurantAPI.model.CuisineDTO;
 import com.gwsoft.restaurantAPI.model.PaginatedDTO;
 import com.gwsoft.restaurantAPI.model.RestaurantEntity;
@@ -15,8 +16,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -37,7 +40,7 @@ public class RestaurantServiceTest {
     @InjectMocks
     private RestaurantService restaurantService;
 
-    @Test public void ListCuisines(){
+    @Test public void ListCuisines() throws UnsupportedEncodingException, CuisineNotFoundException {
 
         QueryResultPage<RestaurantEntity> queryResultPage = new QueryResultPage<>();
         List<RestaurantEntity> results = createMockQueryResultPage();
@@ -80,6 +83,6 @@ public class RestaurantServiceTest {
         var expectedValue = new ArrayList<CuisineDTO>(
                 Arrays.asList(val)
         );
-        return new PaginatedDTO(expectedValue, "bnVsbA\u003d\u003d");
+        return PaginatedDTO.builder().items(Collections.singletonList(expectedValue)).lastTokens("bnVsbA==").build();
     }
 }
