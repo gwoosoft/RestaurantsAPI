@@ -4,7 +4,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.gwsoft.restaurantAPI.error.CuisineNotFoundException;
 import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
 import com.gwsoft.restaurantAPI.model.CuisineDTO;
@@ -17,10 +16,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class RestaurantService {
@@ -53,14 +50,9 @@ public class RestaurantService {
             maxNum=MAX_NUM;
         }
 
-        String decode64Value=null;
-
-        if(lastEvaluatedKey!=null){
-            decode64Value= new String(Base64.decodeBase64(lastEvaluatedKey), Charset.forName("UTF-8"));
-        }
-
-        Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
+        Map<String, AttributeValue> startToken = restaurantServiceHelper.getStartToken(lastEvaluatedKey);
         QueryResultPage<RestaurantEntity> results = dynamoDBRepository.getCuisineBasedOnRating(cuisine, rating, startToken, maxNum);
+
         LOG.debug(results.toString());
 
         try{
@@ -88,17 +80,8 @@ public class RestaurantService {
             maxNum=MAX_NUM;
         }
 
-        String decode64Value=null;
-
-        if(lastEvaluatedKey!=null){
-            decode64Value= new String(Base64.decodeBase64(lastEvaluatedKey), Charset.forName("UTF-8"));
-        }
-
-        Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
-
+        Map<String, AttributeValue> startToken = restaurantServiceHelper.getStartToken(lastEvaluatedKey);
         ScanResultPage<RestaurantEntity> results = dynamoDBRepository.getTopRestaurantsBasedOnRating(rating, startToken, maxNum);
-
-
 
         var restaurantIterator = results.getResults().iterator();
         ArrayList<RestaurantDTO> restaurantDtoList = new ArrayList<RestaurantDTO>();
@@ -128,16 +111,9 @@ public class RestaurantService {
             maxNum=MAX_NUM;
         }
 
-        String decode64Value=null;
-
-        if(lastEvaluatedKey!=null){
-            decode64Value= new String(Base64.decodeBase64(lastEvaluatedKey), Charset.forName("UTF-8"));
-        }
-
-        Map<String, AttributeValue> startToken = gsonHelper.fromJson(decode64Value, new TypeToken<HashMap<String, AttributeValue>>(){}.getType());
+        Map<String, AttributeValue> startToken = restaurantServiceHelper.getStartToken(lastEvaluatedKey);
 
         QueryResultPage<RestaurantEntity> results;
-
 
         try {
             results = dynamoDBRepository.getAllCuisines(startToken, maxNum);
@@ -148,7 +124,7 @@ public class RestaurantService {
         }
         catch (RestaurantAPIErrorException e){
             if(e instanceof RestaurantAPIErrorException){
-                throw new CuisineNotFoundException("There was error Fetching DB, Contact Server manager");
+                throw new CuisineNotFoundException("There was an error fetching data from DB, Please contact Server manager. The error is caused by " + e.getMessage());
             }
             else{
                 throw new RuntimeException("some unknown Error!!");
