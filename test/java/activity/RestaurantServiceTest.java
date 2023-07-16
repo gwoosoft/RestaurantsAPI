@@ -2,7 +2,11 @@ package com.gwsoft.restaurantAPI.activity;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.MalformedJsonException;
 import com.gwsoft.restaurantAPI.error.CuisineNotFoundException;
+import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
+import com.gwsoft.restaurantAPI.error.TokenMalformedException;
 import com.gwsoft.restaurantAPI.model.CuisineDTO;
 import com.gwsoft.restaurantAPI.model.PaginatedDTO;
 import com.gwsoft.restaurantAPI.model.RestaurantEntity;
@@ -40,7 +44,9 @@ public class RestaurantServiceTest {
     @InjectMocks
     private RestaurantService restaurantService;
 
-    @Test public void ListCuisines() throws UnsupportedEncodingException, CuisineNotFoundException {
+
+    @Test
+    public void ListCuisines() throws UnsupportedEncodingException, CuisineNotFoundException, TokenMalformedException, MalformedJsonException {
 
         QueryResultPage<RestaurantEntity> queryResultPage = new QueryResultPage<>();
         List<RestaurantEntity> results = createMockQueryResultPage();
@@ -66,6 +72,33 @@ public class RestaurantServiceTest {
         var actualPaginatedDTO = gsonHelper.toJson(returnValue);
         var expectedPaginatedDTO = gsonHelper.toJson(expectedReturnValue);
         Assert.assertEquals(expectedPaginatedDTO, actualPaginatedDTO);
+    }
+
+    //To test if it throws RestaurantPIErrorException
+    @Test
+    public void ListCuisine() throws UnsupportedEncodingException, TokenMalformedException, CuisineNotFoundException, MalformedJsonException {
+        when(dynamoDBRepository.getAllCuisines(null,1)).thenThrow(new RestaurantAPIErrorException());
+        when(restaurantServiceHelper.getRestaurantDtoList(new QueryResultPage<>())).thenCallRealMethod();
+
+
+        Throwable exception = Assert.assertThrows(CuisineNotFoundException.class, () -> restaurantService.ListCuisines(1,null));
+
+        // set Expectation
+        final String expectation = "There was an error fetching data from DB, Please contact Server manager. The error is caused by null";
+        Assert.assertEquals(expectation, exception.getMessage());
+    }
+
+    //To test if it throws MalformedJsonException
+    @Test
+    public void ListCuisineWithJsonSyntaxExceptionException() throws UnsupportedEncodingException, TokenMalformedException, CuisineNotFoundException, MalformedJsonException {
+
+        when(restaurantServiceHelper.getStartToken("wrongFormat")).thenThrow(new JsonSyntaxException("Error during the decoding lastEvaluated Key, please check if it is correct form"));
+
+        Throwable exception = Assert.assertThrows(JsonSyntaxException.class, () -> restaurantService.ListCuisines(1,"wrongFormat"));
+
+        // set Expectation
+        final String expectation = "JsonSyntaxException: Error during the decoding lastEvaluated Key, please check if it is correct form";
+        Assert.assertEquals(expectation, exception.getMessage());
     }
 
     public List createMockQueryResultPage(){
