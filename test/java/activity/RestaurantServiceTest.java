@@ -76,7 +76,7 @@ public class RestaurantServiceTest {
 
     //To test if it throws RestaurantPIErrorException
     @Test
-    public void ListCuisine() throws UnsupportedEncodingException, TokenMalformedException, CuisineNotFoundException, MalformedJsonException {
+    public void ListCuisineWithRestaurantAPIError() throws UnsupportedEncodingException, TokenMalformedException, CuisineNotFoundException, MalformedJsonException {
         when(dynamoDBRepository.getAllCuisines(null,1)).thenThrow(new RestaurantAPIErrorException());
         when(restaurantServiceHelper.getRestaurantDtoList(new QueryResultPage<>())).thenCallRealMethod();
 
