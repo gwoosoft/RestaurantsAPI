@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RestaurantServiceTest {
@@ -55,9 +55,11 @@ public class RestaurantServiceTest {
         var expectedReturnValue = createMockPaginatedDTO();
 
         when(dynamoDBRepository.getAllCuisines(null,1)).thenReturn(queryResultPage);
-        when(restaurantServiceHelper.getRestaurantDtoList(queryResultPage)).thenCallRealMethod();
 
         PaginatedDTO returnValue = restaurantService.ListCuisines(1, null);
+
+        // check if getAllCuisines function is called once
+        verify(dynamoDBRepository, times(1)).getAllCuisines(null,1);
 
         Assert.assertNotNull(returnValue);
 
@@ -72,14 +74,13 @@ public class RestaurantServiceTest {
         var actualPaginatedDTO = gsonHelper.toJson(returnValue);
         var expectedPaginatedDTO = gsonHelper.toJson(expectedReturnValue);
         Assert.assertEquals(expectedPaginatedDTO, actualPaginatedDTO);
+
     }
 
     //To test if it throws RestaurantPIErrorException
     @Test
     public void ListCuisineWithRestaurantAPIError() throws UnsupportedEncodingException, TokenMalformedException, CuisineNotFoundException, MalformedJsonException {
         when(dynamoDBRepository.getAllCuisines(null,1)).thenThrow(new RestaurantAPIErrorException());
-        when(restaurantServiceHelper.getRestaurantDtoList(new QueryResultPage<>())).thenCallRealMethod();
-
 
         Throwable exception = Assert.assertThrows(CuisineNotFoundException.class, () -> restaurantService.ListCuisines(1,null));
 
