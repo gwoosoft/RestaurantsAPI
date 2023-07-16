@@ -7,11 +7,7 @@
 
 
 **Note**
-
-- Only `/getAllCuisines` API has error handlings.
-  1. either unknown error
-  1. dynamoDb query error (when you put wrong hashkey or wrong conditional expression
-- As there is no writing action, I did not account for concurrency. However, it is in the plan to implement opimisitic locking with dynamoDB for some of future CRUD actions
+- As there is no writing action, I did not account for concurrency yet. However, I have a plan to implement opimisitic locking with dynamoDB for some of future CRUD actions
 
 
 **Not in this respository**
