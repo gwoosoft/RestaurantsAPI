@@ -7,14 +7,17 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.gwsoft.restaurantAPI.activity.RestaurantServiceHelper;
+import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
 import com.gwsoft.restaurantAPI.model.RestaurantEntity;
+import org.springframework.http.HttpStatus;
 
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class DynamoDBRepository {
-    private final DynamoDBMapper dynamoDBMapper;
+    public DynamoDBMapper dynamoDBMapper;
+    final String GSI = "cuisine-global-cuisine-index";
     public DynamoDBRepository() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
         this.dynamoDBMapper = new DynamoDBMapper(client);
@@ -44,7 +47,7 @@ public class DynamoDBRepository {
                 .withHashKeyValues(restaurants)
                 .withRangeKeyCondition("rating",rangeKeyCondition)
                 .withLimit(maxNum);
-        
+
         try{
             QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
             return queryResultPage;
@@ -86,18 +89,24 @@ public class DynamoDBRepository {
         RestaurantEntity restaurantEntity = new RestaurantEntity();
         restaurantEntity.setCuisineGlobal(1);
 
+
+
         DynamoDBQueryExpression<RestaurantEntity> queryExpression =  new DynamoDBQueryExpression<RestaurantEntity>()
                 .withExclusiveStartKey(lastEvaluatedKey)
                 .withHashKeyValues(restaurantEntity)
                 .withLimit(maxNum)
-                .withIndexName("cuisine-global-cuisine-index")
+                .withIndexName(GSI)
                 .withConsistentRead(false);
 
         try{
             QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
             return queryResultPage;
         }catch(Exception e){
-            throw new RuntimeException("Fetching Error from DB:" + e);
+            throw new RestaurantAPIErrorException(
+                    "Query error from DB for all the cuisines",
+                    HttpStatus.NOT_FOUND,
+                    e.getMessage()
+            );
         }
     };
 
