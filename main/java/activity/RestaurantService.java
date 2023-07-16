@@ -4,20 +4,22 @@ import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.gson.Gson;
+import com.google.gson.stream.MalformedJsonException;
 import com.gwsoft.restaurantAPI.error.CuisineNotFoundException;
 import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
+import com.gwsoft.restaurantAPI.error.TokenMalformedException;
 import com.gwsoft.restaurantAPI.model.CuisineDTO;
 import com.gwsoft.restaurantAPI.model.PaginatedDTO;
 import com.gwsoft.restaurantAPI.model.RestaurantDTO;
 import com.gwsoft.restaurantAPI.model.RestaurantEntity;
 import com.gwsoft.restaurantAPI.repository.DynamoDBRepository;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 
 public class RestaurantService {
@@ -44,7 +46,7 @@ public class RestaurantService {
      * @param rating
      * @return
      */
-    public PaginatedDTO ListRestaurantsBasedOnRatingByCuisine(String cuisine, Integer maxNum, String lastEvaluatedKey, String rating) {
+    public PaginatedDTO ListRestaurantsBasedOnRatingByCuisine(String cuisine, Integer maxNum, String lastEvaluatedKey, String rating) throws MalformedJsonException {
 
         if(maxNum==null){
             maxNum=MAX_NUM;
@@ -74,7 +76,7 @@ public class RestaurantService {
      * @param rating
      * @return
      */
-    public PaginatedDTO ListRestaurantsBasedOnRating(Integer maxNum, String lastEvaluatedKey, String rating) {
+    public PaginatedDTO ListRestaurantsBasedOnRating(Integer maxNum, String lastEvaluatedKey, String rating) throws MalformedJsonException {
 
         if(maxNum==null){
             maxNum=MAX_NUM;
@@ -105,7 +107,7 @@ public class RestaurantService {
      * @param lastEvaluatedKey
      * @return
      */
-    public PaginatedDTO ListCuisines(Integer maxNum, String lastEvaluatedKey) throws UnsupportedEncodingException, CuisineNotFoundException {
+    public PaginatedDTO ListCuisines(Integer maxNum, String lastEvaluatedKey) throws UnsupportedEncodingException, CuisineNotFoundException, MalformedJsonException, TokenMalformedException {
 
         if(maxNum==null){
             maxNum=MAX_NUM;
@@ -122,12 +124,20 @@ public class RestaurantService {
             String lastToken = restaurantServiceHelper.getEncodedLastEvaluatedKey(resultsLastEvaluatedKey);
             return PaginatedDTO.builder().items(Collections.singletonList(restaurantDtoList)).lastTokens(lastToken).build();
         }
-        catch (RestaurantAPIErrorException e){
+        catch (Exception e){
             if(e instanceof RestaurantAPIErrorException){
                 throw new CuisineNotFoundException("There was an error fetching data from DB, Please contact Server manager. The error is caused by " + e.getMessage());
             }
+            else if(e instanceof UnsupportedEncodingException){
+                throw new UnsupportedEncodingException(e.getMessage());
+            }
             else{
-                throw new RuntimeException("some unknown Error!!");
+                final String message = e.getMessage().toLowerCase(Locale.ROOT);
+                if(message.contains("malformed")){
+                  throw new TokenMalformedException(e.getMessage());
+                }else{
+                    throw new RuntimeException("some unknown Error!!");
+                }
             }
         }
     }
