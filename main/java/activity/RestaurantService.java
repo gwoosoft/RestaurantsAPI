@@ -59,7 +59,7 @@ public class RestaurantService {
             ArrayList<RestaurantDTO> restaurantDtoList = restaurantServiceHelper.getRestaurantDtoList(results);
             LOG.debug("in RService restaurantDtoList:" + gsonHelper.toJson(restaurantDtoList));
             Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
-            String lastToken = Base64.encodeBase64String(gsonHelper.toJson(resultsLastEvaluatedKey).getBytes("UTF-8"));
+            String lastToken = restaurantServiceHelper.getEncodedLastEvaluatedKey(resultsLastEvaluatedKey);
             return PaginatedDTO.builder().items(Collections.singletonList(restaurantDtoList)).lastTokens(lastToken).build();
         }catch (Exception e){
             LOG.info("error:"+e);
@@ -91,7 +91,7 @@ public class RestaurantService {
                 restaurantDtoList.add(restaurantIterator.next().asRestaurantDTO());
             }
             Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
-            String lastToken = Base64.encodeBase64String(gsonHelper.toJson(resultsLastEvaluatedKey).getBytes("UTF-8"));
+            String lastToken = restaurantServiceHelper.getEncodedLastEvaluatedKey(resultsLastEvaluatedKey);
             return PaginatedDTO.builder().items(Collections.singletonList(restaurantDtoList)).lastTokens(lastToken).build();
         }catch (Exception e){
             LOG.info("error:"+e);
@@ -119,7 +119,7 @@ public class RestaurantService {
             results = dynamoDBRepository.getAllCuisines(startToken, maxNum);
             ArrayList<CuisineDTO> restaurantDtoList = restaurantServiceHelper.getCuisineDtoList(results);
             Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
-            String lastToken = Base64.encodeBase64String(gsonHelper.toJson(resultsLastEvaluatedKey).getBytes("UTF-8"));
+            String lastToken = restaurantServiceHelper.getEncodedLastEvaluatedKey(resultsLastEvaluatedKey);
             return PaginatedDTO.builder().items(Collections.singletonList(restaurantDtoList)).lastTokens(lastToken).build();
         }
         catch (RestaurantAPIErrorException e){
