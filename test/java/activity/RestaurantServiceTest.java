@@ -89,7 +89,7 @@ public class RestaurantServiceTest {
         Assert.assertEquals(expectation, exception.getMessage());
     }
 
-    //To test if it throws MalformedJsonException
+    //To test if it throws JsonSyntaxException
     @Test
     public void ListCuisineWithJsonSyntaxExceptionException() throws UnsupportedEncodingException, TokenMalformedException, CuisineNotFoundException, MalformedJsonException {
 
