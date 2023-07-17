@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.MalformedJsonException;
 import com.gwsoft.restaurantAPI.error.CuisineNotFoundException;
 import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
@@ -15,6 +16,9 @@ import com.gwsoft.restaurantAPI.model.RestaurantEntity;
 import com.gwsoft.restaurantAPI.repository.DynamoDBRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -33,23 +37,21 @@ public class RestaurantService {
     public RestaurantService() {
         this.dynamoDBRepository = new DynamoDBRepository();
         this.restaurantServiceHelper = new RestaurantServiceHelper();
-
     }
 
     private static final Logger LOG = LogManager.getLogger(RestaurantService.class);
 
     /**
-     *
      * @param cuisine
      * @param maxNum
      * @param lastEvaluatedKey
      * @param rating
      * @return
      */
-    public PaginatedDTO ListRestaurantsBasedOnRatingByCuisine(String cuisine, Integer maxNum, String lastEvaluatedKey, String rating) throws MalformedJsonException {
+    public PaginatedDTO ListRestaurantsBasedOnRatingByCuisine(String cuisine, Integer maxNum, String lastEvaluatedKey, String rating) throws MalformedJsonException, UnsupportedEncodingException {
 
-        if(maxNum==null){
-            maxNum=MAX_NUM;
+        if (maxNum == null) {
+            maxNum = MAX_NUM;
         }
 
         Map<String, AttributeValue> startToken = restaurantServiceHelper.getStartToken(lastEvaluatedKey);
@@ -57,29 +59,33 @@ public class RestaurantService {
 
         LOG.debug(results.toString());
 
+        ArrayList<RestaurantDTO> restaurantDtoList = restaurantServiceHelper.getRestaurantDtoList(results);
+        LOG.debug("in RService restaurantDtoList:" + gsonHelper.toJson(restaurantDtoList));
+        System.out.println("in RService restaurantDtoList:" + gsonHelper.toJson(restaurantDtoList));
+        Map<String, AttributeValue> resultsLastEvaluatedKey = results.getLastEvaluatedKey();
+        String lastToken = restaurantServiceHelper.getEncodedLastEvaluatedKey(resultsLastEvaluatedKey);
+
         try{
-            ArrayList<RestaurantDTO> restaurantDtoList = restaurantServiceHelper.getRestaurantDtoList(results);
-            LOG.debug("in RService restaurantDtoList:" + gsonHelper.toJson(restaurantDtoList));
-            Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
-            String lastToken = restaurantServiceHelper.getEncodedLastEvaluatedKey(resultsLastEvaluatedKey);
             return PaginatedDTO.builder().items(Collections.singletonList(restaurantDtoList)).lastTokens(lastToken).build();
         }catch (Exception e){
-            LOG.info("error:"+e);
-            throw new RuntimeException(e);
+            throw new RestaurantAPIErrorException(
+                    "Trouble getting paginated results",
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getMessage()
+            );
         }
     }
 
     /**
-     *
      * @param maxNum
      * @param lastEvaluatedKey
      * @param rating
      * @return
      */
-    public PaginatedDTO ListRestaurantsBasedOnRating(Integer maxNum, String lastEvaluatedKey, String rating) throws MalformedJsonException {
+    public PaginatedDTO ListRestaurantsBasedOnRating(Integer maxNum, String lastEvaluatedKey, String rating) throws UnsupportedEncodingException, MalformedJsonException {
 
-        if(maxNum==null){
-            maxNum=MAX_NUM;
+        if (maxNum == null) {
+            maxNum = MAX_NUM;
         }
 
         Map<String, AttributeValue> startToken = restaurantServiceHelper.getStartToken(lastEvaluatedKey);
@@ -88,58 +94,55 @@ public class RestaurantService {
         var restaurantIterator = results.getResults().iterator();
         ArrayList<RestaurantDTO> restaurantDtoList = new ArrayList<RestaurantDTO>();
 
+        while (restaurantIterator.hasNext()) {
+            restaurantDtoList.add(restaurantIterator.next().asRestaurantDTO());
+        }
+
+        Map<String, AttributeValue> resultsLastEvaluatedKey = results.getLastEvaluatedKey();
+
+        String lastToken = restaurantServiceHelper.getEncodedLastEvaluatedKey(resultsLastEvaluatedKey);
+
         try{
-            while(restaurantIterator.hasNext()){
-                restaurantDtoList.add(restaurantIterator.next().asRestaurantDTO());
-            }
-            Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
-            String lastToken = restaurantServiceHelper.getEncodedLastEvaluatedKey(resultsLastEvaluatedKey);
             return PaginatedDTO.builder().items(Collections.singletonList(restaurantDtoList)).lastTokens(lastToken).build();
         }catch (Exception e){
-            LOG.info("error:"+e);
-            throw new RuntimeException(e);
+            throw new RestaurantAPIErrorException(
+                    "Trouble getting paginated results",
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getMessage()
+            );
         }
     }
 
     /**
-     *
      * @param maxNum
      * @param lastEvaluatedKey
      * @return
      */
-    public PaginatedDTO ListCuisines(Integer maxNum, String lastEvaluatedKey) throws UnsupportedEncodingException, CuisineNotFoundException, MalformedJsonException, TokenMalformedException {
+    public PaginatedDTO ListCuisines(Integer maxNum, String lastEvaluatedKey) throws MalformedJsonException, UnsupportedEncodingException {
 
-        if(maxNum==null){
-            maxNum=MAX_NUM;
+        if (maxNum == null) {
+            maxNum = MAX_NUM;
         }
 
-        Map<String, AttributeValue> startToken = restaurantServiceHelper.getStartToken(lastEvaluatedKey);
-
+        Map<String, AttributeValue> startToken;
+        startToken = restaurantServiceHelper.getStartToken(lastEvaluatedKey);
         QueryResultPage<RestaurantEntity> results;
 
-        try {
-            results = dynamoDBRepository.getAllCuisines(startToken, maxNum);
-            ArrayList<CuisineDTO> restaurantDtoList = restaurantServiceHelper.getCuisineDtoList(results);
-            Map<String, AttributeValue> resultsLastEvaluatedKey= results.getLastEvaluatedKey();
-            String lastToken = restaurantServiceHelper.getEncodedLastEvaluatedKey(resultsLastEvaluatedKey);
-            return PaginatedDTO.builder().items(Collections.singletonList(restaurantDtoList)).lastTokens(lastToken).build();
+        results = dynamoDBRepository.getAllCuisines(startToken, maxNum);
+        ArrayList<CuisineDTO> cuisineDtoList = restaurantServiceHelper.getCuisineDtoList(results);
+        Map<String, AttributeValue> resultsLastEvaluatedKey = results.getLastEvaluatedKey();
+        String lastToken = restaurantServiceHelper.getEncodedLastEvaluatedKey(resultsLastEvaluatedKey);
+
+        try{
+            return PaginatedDTO.builder().items(Collections.singletonList(cuisineDtoList)).lastTokens(lastToken).build();
+        }catch (Exception e){
+            throw new RestaurantAPIErrorException(
+                    "Trouble getting paginated results",
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getMessage()
+            );
         }
-        catch (Exception e){
-            if(e instanceof RestaurantAPIErrorException){
-                throw new CuisineNotFoundException("There was an error fetching data from DB, Please contact Server manager. The error is caused by " + e.getMessage());
-            }
-            else if(e instanceof UnsupportedEncodingException){
-                throw new UnsupportedEncodingException(e.getMessage());
-            }
-            else{
-                final String message = e.getMessage().toLowerCase(Locale.ROOT);
-                if(message.contains("malformed")){
-                  throw new TokenMalformedException(e.getMessage());
-                }else{
-                    throw new RuntimeException("some unknown Error!!");
-                }
-            }
-        }
+
     }
 
 }
