@@ -15,6 +15,7 @@ import javax.validation.constraints.Pattern;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@SuperBuilder
 public class GetTopRestaurantsBasedOnRatingByCuisineRequest extends BaseRequest{
 
     @NotNull(message = "cuisine name should not be null")
@@ -22,7 +23,7 @@ public class GetTopRestaurantsBasedOnRatingByCuisineRequest extends BaseRequest{
     private String cuisine;
 
     @NotNull(message = "rating should not be null")
-    @Pattern(regexp = "^[0-9]*$", message = "Please only insert digits")
+    @Pattern(regexp = "^\\d+(\\.\\d+)?$", message = "Please only insert digits")
     @Min(0)
     @Max(5)
     private String  rating;
