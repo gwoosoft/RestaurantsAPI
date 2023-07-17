@@ -31,17 +31,14 @@ public class DynamoDBRepository {
      * @param maxNum
      * @return
      */
-    public QueryResultPage<RestaurantEntity> getCuisineBasedOnRating(String cuisine, String rating, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum) {
+    public QueryResultPage<RestaurantEntity> getCuisineBasedOnRating(String cuisine, Double rating, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum) {
 
         RestaurantEntity restaurants = new RestaurantEntity();
         restaurants.setCuisine(cuisine);
 
-        double doubledRating = Double.parseDouble(rating);
-        String convertedRating = Double.toString(doubledRating);
-
         Condition rangeKeyCondition = new Condition()
                 .withComparisonOperator(ComparisonOperator.GE)
-                .withAttributeValueList(new AttributeValue().withN(convertedRating));
+                .withAttributeValueList(new AttributeValue().withN(String.valueOf(rating)));
 
         DynamoDBQueryExpression<RestaurantEntity> queryExpression = new DynamoDBQueryExpression<RestaurantEntity>()
                 .withExclusiveStartKey(lastEvaluatedKey)
@@ -64,10 +61,12 @@ public class DynamoDBRepository {
     /**
      * this method scan DB and return restaurants based on the rate user request
      *
-     * @param value a value of the rating of the restaurant
+     * @param rating a value of the rating of the restaurant
      * @return ScanResultPage<RestaurantEntity>
      */
-    public ScanResultPage<RestaurantEntity> getTopRestaurantsBasedOnRating(String value, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum) {
+    public ScanResultPage<RestaurantEntity> getTopRestaurantsBasedOnRating(Double rating, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum) {
+        String value = String.valueOf(rating);
+        System.out.println("show me value:" + value);
         HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
         expressionAttributeValues.put(":rating", new AttributeValue().withN(value));
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
