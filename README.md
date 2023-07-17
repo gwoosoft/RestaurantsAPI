@@ -9,7 +9,6 @@
 **Note**
 - As there is no writing action, I did not account for concurrency yet. However, I have a plan to implement opimisitic locking with dynamoDB for some of future CRUD actions
 - Most errors are handled in controller level as recommended practice for controlling program flow.
-- Minor bug in validating rating. It will throw validation error if you try to put decimal value. 
 
 **Not in this respository**
 - Elastic Search Usage - Still thinking about whether to use Elastic Search or not for caching purpose(or LSU cache for data sync mechanism to update the most latest restaurants as there is no way there will be 100 restaurants changes per week in nyc. A problem with this approach is that I would not be able to check when a restaurant goes down.
