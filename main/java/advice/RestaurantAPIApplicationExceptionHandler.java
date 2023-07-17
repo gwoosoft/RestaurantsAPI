@@ -3,6 +3,7 @@ package com.gwsoft.restaurantAPI.advice;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.MalformedJsonException;
 import com.gwsoft.restaurantAPI.error.CuisineNotFoundException;
+import com.gwsoft.restaurantAPI.error.ErrorMessage;
 import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
 import com.gwsoft.restaurantAPI.error.TokenMalformedException;
 import org.springframework.http.HttpStatus;
@@ -11,8 +12,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+
 
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.PatternSyntaxException;
@@ -24,97 +28,122 @@ public class RestaurantAPIApplicationExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleInvalidArgument(MethodArgumentNotValidException ex) {
+    public ErrorMessage handleInvalidArgument(MethodArgumentNotValidException ex, WebRequest request) {
         Map<String, String> errorMap = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             errorMap.put(error.getField(), error.getDefaultMessage());
         });
-        Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put(errorMessage, errorMap.toString());
-        return errorMessageMap;
+
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                errorMap.toString(),
+                request.getDescription(false));
+        return message;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(JsonSyntaxException.class)
-    public Map<String, String> handleInvalidArgument(JsonSyntaxException ex) {
-        Map<String, String> errorMap = new HashMap<>();
-        errorMap.put(errorMessage, ex.getMessage());
-        return errorMap;
+    public ErrorMessage handleInvalidArgument(JsonSyntaxException ex, WebRequest request) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return message;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BindException.class)
-    public Map<String, String> handleInvalidArgument(BindException ex) {
+    public ErrorMessage handleInvalidArgument(BindException ex, WebRequest request) {
+
         Map<String, String> errorMap = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             errorMap.put(error.getField(), error.getDefaultMessage());
         });
-        Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put(errorMessage, errorMap.toString());
-        return errorMessageMap;
+
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                errorMap.toString(),
+                request.getDescription(false));
+        return message;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(PatternSyntaxException.class)
-    public Map<String, String> handleInvalidArgument(PatternSyntaxException ex) {
-        Map<String, String> errorMap = new HashMap<>();
-        errorMap.put(errorMessage, ex.getMessage());
-        return errorMap;
+    public ErrorMessage handleInvalidArgument(PatternSyntaxException ex, WebRequest request) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return message;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(NumberFormatException.class)
-    public Map<String, String> handleInvalidArgument(NumberFormatException ex) {
-        Map<String, String> errorMap = new HashMap<>();
-        errorMap.put(errorMessage, ex.getMessage());
-        return errorMap;
+    public ErrorMessage handleInvalidArgument(NumberFormatException ex, WebRequest request) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return message;
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(CuisineNotFoundException.class)
-    public Map<String, String> handleBusinessException(CuisineNotFoundException ex) {
-        Map<String, String> errorMap = new HashMap<>();
-        errorMap.put(errorMessage, ex.getMessage());
-        return errorMap;
+    public ErrorMessage handleBusinessException(CuisineNotFoundException ex, WebRequest request) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return message;
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(RuntimeException.class)
-    public Map<String, String> handleBusinessException(RuntimeException ex) {
-        Map<String, String> errorMap = new HashMap<>();
-        errorMap.put(errorMessage, "it is unknown exception, please contact to server admin");
-        return errorMap;
+    public ErrorMessage handleBusinessException(RuntimeException ex, WebRequest request) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "unknown error due to" + ex.getMessage(),
+                request.getDescription(false));
+        return message;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(UnsupportedEncodingException.class)
-    public Map<String, String> handleBusinessException(UnsupportedEncodingException ex) {
-        Map<String, String> errorMap = new HashMap<>();
-        errorMap.put(errorMessage, ex.getLocalizedMessage());
-        return errorMap;
+    public ErrorMessage handleBusinessException(UnsupportedEncodingException ex, WebRequest request) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return message;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MalformedJsonException.class)
-    public Map<String, String> handleBusinessException(MalformedJsonException ex) {
-        Map<String, String> errorMap = new HashMap<>();
-        errorMap.put(errorMessage, ex.getLocalizedMessage());
-        return errorMap;
+    public ErrorMessage handleBusinessException(MalformedJsonException ex, WebRequest request) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return message;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(TokenMalformedException.class)
-    public Map<String, String> handleBusinessException(TokenMalformedException ex) {
-        Map<String, String> errorMap = new HashMap<>();
-        errorMap.put(errorMessage, ex.getMessage());
-        return errorMap;
+    public ErrorMessage handleBusinessException(TokenMalformedException ex, WebRequest request) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return message;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(RestaurantAPIErrorException.class)
-    public Map<String, String> handleBusinessException(RestaurantAPIErrorException ex) {
-        Map<String, String> errorMap = new HashMap<>();
-        errorMap.put(errorMessage, ex.getMessage());
-        return errorMap;
+    public ErrorMessage handleBusinessException(RestaurantAPIErrorException ex, WebRequest request) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return message;
     }
 }
