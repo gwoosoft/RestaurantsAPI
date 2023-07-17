@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
+import com.google.gson.Gson;
 import com.gwsoft.restaurantAPI.activity.RestaurantServiceHelper;
 import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
 import com.gwsoft.restaurantAPI.model.RestaurantEntity;
@@ -18,19 +19,19 @@ import java.util.Map;
 public class DynamoDBRepository {
     public DynamoDBMapper dynamoDBMapper;
     final String GSI = "cuisine-global-cuisine-index";
+
     public DynamoDBRepository() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
         this.dynamoDBMapper = new DynamoDBMapper(client);
     }
 
     /**
-     *
      * @param cuisine
      * @param lastEvaluatedKey
      * @param maxNum
      * @return
      */
-    public QueryResultPage<RestaurantEntity> getCuisineBasedOnRating(String cuisine, String rating, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum){
+    public QueryResultPage<RestaurantEntity> getCuisineBasedOnRating(String cuisine, String rating, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum) {
 
         RestaurantEntity restaurants = new RestaurantEntity();
         restaurants.setCuisine(cuisine);
@@ -45,22 +46,26 @@ public class DynamoDBRepository {
         DynamoDBQueryExpression<RestaurantEntity> queryExpression = new DynamoDBQueryExpression<RestaurantEntity>()
                 .withExclusiveStartKey(lastEvaluatedKey)
                 .withHashKeyValues(restaurants)
-                .withRangeKeyCondition("rating",rangeKeyCondition)
+                .withRangeKeyCondition("rating", rangeKeyCondition)
                 .withLimit(maxNum);
 
-        try{
+        try {
             QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
             return queryResultPage;
-        }catch(Exception e){
-            throw new RuntimeException("Fetching Error from DB:" + e);
+        } catch (Exception e) {
+            throw new RestaurantAPIErrorException(
+                    "Query error from DB for all the cuisines",
+                    HttpStatus.NOT_FOUND,
+                    e.getMessage()
+            );
         }
     }
 
     /**
      * this method scan DB and return restaurants based on the rate user request
      *
-     * @param  value a value of the rating of the restaurant
-     * @return  ScanResultPage<RestaurantEntity>
+     * @param value a value of the rating of the restaurant
+     * @return ScanResultPage<RestaurantEntity>
      */
     public ScanResultPage<RestaurantEntity> getTopRestaurantsBasedOnRating(String value, Map<String, AttributeValue> lastEvaluatedKey, Integer maxNum) {
         HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
@@ -70,17 +75,22 @@ public class DynamoDBRepository {
                 .withLimit(maxNum)
                 .withFilterExpression("rating > :rating")
                 .withExpressionAttributeValues(expressionAttributeValues);
-        try{
-            ScanResultPage<RestaurantEntity> scanResultPage = dynamoDBMapper.scanPage(RestaurantEntity.class , scanExpression);
+        try {
+            ScanResultPage<RestaurantEntity> scanResultPage = dynamoDBMapper.scanPage(RestaurantEntity.class, scanExpression);
             return scanResultPage;
-        }catch(Exception e){
-            throw new RuntimeException("Fetching Error from DB:" + e);
+        } catch (Exception e) {
+            throw new RestaurantAPIErrorException(
+                    "Query error from DB for all the cuisines",
+                    HttpStatus.NOT_FOUND,
+                    e.getMessage()
+            );
         }
-    };
+    }
+
+    ;
 
 
     /**
-     *
      * @param lastEvaluatedKey
      * @param maxNum
      * @return QueryResultPage
@@ -90,24 +100,29 @@ public class DynamoDBRepository {
         restaurantEntity.setCuisineGlobal(1);
 
 
-
-        DynamoDBQueryExpression<RestaurantEntity> queryExpression =  new DynamoDBQueryExpression<RestaurantEntity>()
+        DynamoDBQueryExpression<RestaurantEntity> queryExpression = new DynamoDBQueryExpression<RestaurantEntity>()
                 .withExclusiveStartKey(lastEvaluatedKey)
                 .withHashKeyValues(restaurantEntity)
                 .withLimit(maxNum)
                 .withIndexName(GSI)
                 .withConsistentRead(false);
 
-        try{
+        try {
             QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
             return queryResultPage;
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RestaurantAPIErrorException(
                     "Query error from DB for all the cuisines",
                     HttpStatus.NOT_FOUND,
                     e.getMessage()
             );
         }
-    };
+    }
+
+    ;
+
+    public Integer getLimit(Integer maxNum) {
+        return maxNum != null ? maxNum : 1000;
+    }
 
 }
