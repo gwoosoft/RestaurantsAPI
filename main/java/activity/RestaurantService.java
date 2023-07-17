@@ -4,11 +4,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.MalformedJsonException;
-import com.gwsoft.restaurantAPI.error.CuisineNotFoundException;
 import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
-import com.gwsoft.restaurantAPI.error.TokenMalformedException;
 import com.gwsoft.restaurantAPI.model.CuisineDTO;
 import com.gwsoft.restaurantAPI.model.PaginatedDTO;
 import com.gwsoft.restaurantAPI.model.RestaurantDTO;
@@ -17,13 +14,10 @@ import com.gwsoft.restaurantAPI.repository.DynamoDBRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Map;
 
 public class RestaurantService {
@@ -48,7 +42,7 @@ public class RestaurantService {
      * @param rating
      * @return
      */
-    public PaginatedDTO ListRestaurantsBasedOnRatingByCuisine(String cuisine, Integer maxNum, String lastEvaluatedKey, String rating) throws MalformedJsonException, UnsupportedEncodingException {
+    public PaginatedDTO ListRestaurantsBasedOnRatingByCuisine(String cuisine, Integer maxNum, String lastEvaluatedKey, Double rating) throws MalformedJsonException, UnsupportedEncodingException {
 
         if (maxNum == null) {
             maxNum = MAX_NUM;
@@ -82,7 +76,7 @@ public class RestaurantService {
      * @param rating
      * @return
      */
-    public PaginatedDTO ListRestaurantsBasedOnRating(Integer maxNum, String lastEvaluatedKey, String rating) throws UnsupportedEncodingException, MalformedJsonException {
+    public PaginatedDTO ListRestaurantsBasedOnRating(Integer maxNum, String lastEvaluatedKey, Double rating) throws UnsupportedEncodingException, MalformedJsonException {
 
         if (maxNum == null) {
             maxNum = MAX_NUM;
