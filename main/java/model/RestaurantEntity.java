@@ -10,13 +10,15 @@ public class RestaurantEntity {
     private String name;
     private String id;
     private Integer reviewCount;
-    private Double rating;
+    private String rating;
     private String address1;
 
     private String zipCode;
     private String phone;
 
     private Integer cuisineGlobal; // to query all the cuisines in the table
+
+    private String customRating;
 
     @DynamoDBHashKey(attributeName="cuisine") // This should be partition key
     public String getCuisine() {
@@ -47,10 +49,10 @@ public class RestaurantEntity {
     }
 
     @DynamoDBIndexRangeKey(attributeName="rating", localSecondaryIndexName = "rating-index")
-    public Double getRating() {
+    public String getRating() {
         return rating;
     }
-    public void setRating(Double rating) {
+    public void setRating(String rating) {
         this.rating = rating;
     }
 
@@ -85,6 +87,12 @@ public class RestaurantEntity {
     }
     public void setCuisineGlobal(Integer cuisineGlobal) {
         this.cuisineGlobal = cuisineGlobal;
+    }
+
+    @DynamoDBIndexHashKey(globalSecondaryIndexName = "custom-rating-index")
+    @DynamoDBAttribute(attributeName="custom-rating")
+    public void setCustomRating(String customRating) {
+        this.customRating = customRating;
     }
 
     public RestaurantDTO asRestaurantDTO(){
