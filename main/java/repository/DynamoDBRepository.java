@@ -6,12 +6,11 @@ import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
-import com.google.gson.Gson;
-import com.gwsoft.restaurantAPI.activity.RestaurantServiceHelper;
 import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
 import com.gwsoft.restaurantAPI.model.RestaurantEntity;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
-
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +18,7 @@ import java.util.Map;
 public class DynamoDBRepository {
     public DynamoDBMapper dynamoDBMapper;
     final String GSI = "cuisine-global-cuisine-index";
+    private static final Logger LOG = LogManager.getLogger(DynamoDBRepository.class);
 
     public DynamoDBRepository() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
@@ -38,7 +38,7 @@ public class DynamoDBRepository {
 
         Condition rangeKeyCondition = new Condition()
                 .withComparisonOperator(ComparisonOperator.GE)
-                .withAttributeValueList(new AttributeValue().withN(String.valueOf(rating)));
+                .withAttributeValueList(new AttributeValue().withS(String.valueOf(rating)));
 
         DynamoDBQueryExpression<RestaurantEntity> queryExpression = new DynamoDBQueryExpression<RestaurantEntity>()
                 .withExclusiveStartKey(lastEvaluatedKey)
@@ -47,11 +47,11 @@ public class DynamoDBRepository {
                 .withLimit(maxNum);
 
         try {
-            QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
-            return queryResultPage;
+            return dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
         } catch (Exception e) {
+            LOG.debug("DB Scanning Fail due to " +e.getMessage());
             throw new RestaurantAPIErrorException(
-                    "Query error from DB for all the cuisines",
+                    "Query error from DB for all the cuisines:",
                     HttpStatus.NOT_FOUND,
                     e.getMessage()
             );
@@ -68,16 +68,17 @@ public class DynamoDBRepository {
         String value = String.valueOf(rating);
         System.out.println("show me value:" + value);
         HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
-        expressionAttributeValues.put(":rating", new AttributeValue().withN(value));
+        expressionAttributeValues.put(":rating", new AttributeValue().withS(value));
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
                 .withExclusiveStartKey(lastEvaluatedKey)
                 .withLimit(maxNum)
                 .withFilterExpression("rating > :rating")
                 .withExpressionAttributeValues(expressionAttributeValues);
         try {
-            ScanResultPage<RestaurantEntity> scanResultPage = dynamoDBMapper.scanPage(RestaurantEntity.class, scanExpression);
-            return scanResultPage;
+            return dynamoDBMapper.scanPage(RestaurantEntity.class, scanExpression);
         } catch (Exception e) {
+            LOG.debug("DB Scanning Fail due to " +e.getMessage());
+            System.out.println("DB Scanning Fail due to " +e.getMessage());
             throw new RestaurantAPIErrorException(
                     "Query error from DB for all the cuisines",
                     HttpStatus.NOT_FOUND,
@@ -85,8 +86,6 @@ public class DynamoDBRepository {
             );
         }
     }
-
-    ;
 
 
     /**
@@ -105,11 +104,10 @@ public class DynamoDBRepository {
                 .withLimit(maxNum)
                 .withIndexName(GSI)
                 .withConsistentRead(false);
-
         try {
-            QueryResultPage<RestaurantEntity> queryResultPage = dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
-            return queryResultPage;
+            return dynamoDBMapper.queryPage(RestaurantEntity.class, queryExpression);
         } catch (Exception e) {
+            LOG.debug("DB Querying Fail due to " +e.getMessage());
             throw new RestaurantAPIErrorException(
                     "Query error from DB for all the cuisines",
                     HttpStatus.NOT_FOUND,
@@ -117,8 +115,6 @@ public class DynamoDBRepository {
             );
         }
     }
-
-    ;
 
     public Integer getLimit(Integer maxNum) {
         return maxNum != null ? maxNum : 1000;
