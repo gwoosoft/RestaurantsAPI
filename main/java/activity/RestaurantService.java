@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.gson.Gson;
 import com.google.gson.stream.MalformedJsonException;
+import com.gwsoft.restaurantAPI.error.BullShitException;
 import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
 import com.gwsoft.restaurantAPI.model.CuisineDTO;
 import com.gwsoft.restaurantAPI.model.PaginatedDTO;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class RestaurantService {
@@ -136,7 +138,23 @@ public class RestaurantService {
                     e.getMessage()
             );
         }
-
     }
 
+    /**
+     *
+     * @param restaurantEntity
+     * @param customRating
+     * @return
+     */
+    public RestaurantEntity updateCustomRate(RestaurantEntity restaurantEntity, String customRating){
+        try{
+            return dynamoDBRepository.putCustomRate(restaurantEntity, customRating);
+        }catch(Exception e){
+            throw new RestaurantAPIErrorException(
+                    "Trouble updating the item",
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getMessage()
+            );
+        }
+    }
 }
