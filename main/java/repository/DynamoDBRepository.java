@@ -116,6 +116,32 @@ public class DynamoDBRepository {
         }
     }
 
+    /**
+     *
+     * @param restaurantEntity
+     * @param customRating
+     * @return RestaurantEntity
+     */
+    public RestaurantEntity putCustomRate(RestaurantEntity restaurantEntity, String customRating){
+        // TODO: create another attribute usercounts
+        // TODO: create another attribute saves userId object
+        // {userId: {customRating, timestamp}
+        // }}
+        try{
+            RestaurantEntity retrievedItem = dynamoDBMapper.load(restaurantEntity); // we have the result now
+            LOG.debug("retrievedItem:"+retrievedItem);
+            retrievedItem.setCustomRating(customRating);
+            System.out.println("retrievedItem:"+retrievedItem);
+            dynamoDBMapper.save(retrievedItem);
+            return retrievedItem;
+        }catch(Exception e){
+            LOG.debug("DB Querying Fail due to " +e.getMessage());
+            throw new RuntimeException("failing during updating the item:" + restaurantEntity.getId() + " with Error:" + e.getMessage());
+        }
+    }
+
+    // TODO: get query for getting custom rating api
+
     public Integer getLimit(Integer maxNum) {
         return maxNum != null ? maxNum : 1000;
     }
