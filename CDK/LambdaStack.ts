@@ -81,10 +81,12 @@ export class LambdaStack extends Stack {
     const getAllCuisines = restApi.root.addResource('getAllCuisines'); 
     const getTopRestaurantsBasedOnRating = restApi.root.addResource("getTopRestaurantsBasedOnRating");
     const getTopRestaurantsBasedOnRatingByCuisine = restApi.root.addResource("getTopRestaurantsBasedOnRatingByCuisine");
+
     const updateRestaurantRates = restApi.root.addResource("updateRestaurantRates");
+    const updateRestaurantRateswithRating = updateRestaurantRates.addResource('{customRating}')
     getAllCuisines.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getAllCuisines
     getTopRestaurantsBasedOnRating.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRating
     getTopRestaurantsBasedOnRatingByCuisine.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRatingByCuisine
-    updateRestaurantRates.addMethod('PUT', apiGatewayLambdaIntegration);  // PUT /updateRestaurantRates
+    updateRestaurantRateswithRating.addMethod('PUT', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRatingByCuisine
   }
 }
