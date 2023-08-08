@@ -4,6 +4,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as opensearch from 'aws-cdk-lib/aws-opensearchservice';
+import { aws_logs as logs } from 'aws-cdk-lib';
 
 export class LambdaStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -60,6 +61,12 @@ export class LambdaStack extends Stack {
       role: myRole, 
     });
 
+    const logGroup = lambdaDataSyncFn.logGroup;
+    const logStream = new logs.LogStream(this, 'MyLogStream', {
+      logGroup: logGroup,
+    });
+    
+
     const restApi = new apigateway.RestApi(this, "launchapi", { deploy: true,
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
@@ -74,8 +81,10 @@ export class LambdaStack extends Stack {
     const getAllCuisines = restApi.root.addResource('getAllCuisines'); 
     const getTopRestaurantsBasedOnRating = restApi.root.addResource("getTopRestaurantsBasedOnRating");
     const getTopRestaurantsBasedOnRatingByCuisine = restApi.root.addResource("getTopRestaurantsBasedOnRatingByCuisine");
+    const updateRestaurantRates = restApi.root.addResource("updateRestaurantRates");
     getAllCuisines.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getAllCuisines
     getTopRestaurantsBasedOnRating.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRating
     getTopRestaurantsBasedOnRatingByCuisine.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRatingByCuisine
+    updateRestaurantRates.addMethod('PUT', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRatingByCuisine
   }
 }
