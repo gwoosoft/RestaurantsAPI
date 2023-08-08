@@ -85,6 +85,6 @@ export class LambdaStack extends Stack {
     getAllCuisines.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getAllCuisines
     getTopRestaurantsBasedOnRating.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRating
     getTopRestaurantsBasedOnRatingByCuisine.addMethod('GET', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRatingByCuisine
-    updateRestaurantRates.addMethod('PUT', apiGatewayLambdaIntegration);  // GET /getTopRestaurantsBasedOnRatingByCuisine
+    updateRestaurantRates.addMethod('PUT', apiGatewayLambdaIntegration);  // PUT /updateRestaurantRates
   }
 }
