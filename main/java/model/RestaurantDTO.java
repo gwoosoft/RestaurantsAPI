@@ -5,12 +5,22 @@ public class RestaurantDTO {
     private String name;
     private String id;
     private Integer reviewCount;
-    private Double rating;
+    private String rating;
     private String address1;
     private String zipCode;
     private String phone;
 
     private Integer cuisineGlobal; // to query all the cuisines in the table
+
+    public void setCustomRating(String customRating) {
+        this.customRating = customRating;
+    }
+
+    public String getCustomRating() {
+        return customRating;
+    }
+
+    private String customRating;
 
     public String getCuisine() {
         return cuisine;
@@ -44,11 +54,11 @@ public class RestaurantDTO {
         this.reviewCount = reviewCount;
     }
 
-    public Double getRating() {
+    public String getRating() {
         return rating;
     }
 
-    public void setRating(Double rating) {
+    public void setRating(String rating) {
         this.rating = rating;
     }
 
