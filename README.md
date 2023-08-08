@@ -3,6 +3,7 @@
 - /getAllCuisines
 - /getTopRestaurantsBasedOnRating
 - /getTopRestaurantsBasedOnRatingByCuisine
+- /updateRestaurantRates/4.4
 - /more APIs are coming.. Thinking about having a service where ML gives recommendation based on what user went in the past by adding more field in an existing DB
 
 
