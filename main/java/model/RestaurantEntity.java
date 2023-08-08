@@ -18,6 +18,10 @@ public class RestaurantEntity {
 
     private Integer cuisineGlobal; // to query all the cuisines in the table
 
+    public String getCustomRating() {
+        return customRating;
+    }
+
     private String customRating;
 
     @DynamoDBHashKey(attributeName="cuisine") // This should be partition key
@@ -105,6 +109,7 @@ public class RestaurantEntity {
         dto.setReviewCount(this.reviewCount);
         dto.setName(this.name);
         dto.setCuisineGlobal(this.cuisineGlobal);
+        dto.setCustomRating(this.customRating);
         return dto;
     }
 
