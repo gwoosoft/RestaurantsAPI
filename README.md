@@ -3,7 +3,7 @@
 - /getAllCuisines
 - /getTopRestaurantsBasedOnRating
 - /getTopRestaurantsBasedOnRatingByCuisine
-- /updateRestaurantRates/{customRating} this method will be updated more once it handle concurrency 
+- /updateRestaurantRates/{customRating} this method will be updated more once it handle concurrency
 - /more APIs are coming.. Thinking about having a service where ML gives recommendation based on what user went in the past by adding more field in an existing DB
 
 
