@@ -1,6 +1,5 @@
 package com.gwsoft.restaurantAPI;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.MalformedJsonException;
 import com.gwsoft.restaurantAPI.activity.RestaurantService;
@@ -13,7 +12,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.io.UnsupportedEncodingException;
 
 @RestController
@@ -63,7 +61,8 @@ public class RestaurantAPIApplicationController {
     @PutMapping("/updateRestaurantRates/{customRating}")
     public ResponseEntity<RestaurantEntity> updateRestaurantRating(@Valid UpdateRestaurantRequest updateRestaurantRequest, @RequestBody RestaurantEntity restaurantEntity){
         String customRating = String.valueOf(updateRestaurantRequest.getCustomRating());
-        RestaurantEntity updatedRestaurantEntity = restaurantService.updateCustomRate(restaurantEntity, customRating);
+        String userId = updateRestaurantRequest.getUserId();
+        RestaurantEntity updatedRestaurantEntity = restaurantService.updateCustomRate(restaurantEntity, customRating, userId);
         System.out.println("show me updated restaurantentity"+ updatedRestaurantEntity.getCustomRating());
         return ResponseEntity.ok(updatedRestaurantEntity);
     }
