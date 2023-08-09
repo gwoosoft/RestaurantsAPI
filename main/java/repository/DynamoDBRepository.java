@@ -8,11 +8,14 @@ import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.gwsoft.restaurantAPI.error.RestaurantAPIErrorException;
 import com.gwsoft.restaurantAPI.model.RestaurantEntity;
+import com.gwsoft.restaurantAPI.model.UserEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DynamoDBRepository {
@@ -122,25 +125,82 @@ public class DynamoDBRepository {
      * @param customRating
      * @return RestaurantEntity
      */
-    public RestaurantEntity putCustomRate(RestaurantEntity restaurantEntity, String customRating){
-        // TODO: create another attribute usercounts
-        // TODO: create another attribute saves userId object
-        // {userId: {customRating, timestamp}
-        // }}
+    public RestaurantEntity putCustomRate(RestaurantEntity restaurantEntity, String customRating, String userId){
+
+        if(userId == null || userId == ""){
+
+            throw new RuntimeException("userID is NULL FUCK!!");
+        }
+
         try{
+
+            UserEntity userEntity = new UserEntity();
+            userEntity.setUserId(userId);
+            UserEntity retrievedUserItem = dynamoDBMapper.load(userEntity);
+
+            if(retrievedUserItem==null){
+                retrievedUserItem=userEntity;
+            }
+
+            Map<String, String> userSelection = retrievedUserItem.getUserSelection();;
+
+            if(userSelection == null){
+                userSelection = new HashMap<String, String>();
+            }
+
+            String restaurantId = userSelection.get(restaurantEntity.getId());
+
+            if(restaurantId != null){ // since it already exist, we do not change anything there
+                throw new RuntimeException("You have already rated this restaurant previously");
+            }
+
+            userSelection.put(restaurantEntity.getId(), customRating);
+            retrievedUserItem.setUserSelection(userSelection);
+            dynamoDBMapper.save(retrievedUserItem);
+
+
+            // Start working on restaruantDB
             RestaurantEntity retrievedItem = dynamoDBMapper.load(restaurantEntity); // we have the result now
+
             LOG.debug("retrievedItem:"+retrievedItem);
-            retrievedItem.setCustomRating(customRating);
+
+            List<String> userList = retrievedItem.getUserList();
+            if(userList == null){
+                userList=new ArrayList<>();
+            }
+
+            Integer userCount = userList.size();
+            Double currentValue;
+
+            if(retrievedItem.getCustomRating()==null){
+                currentValue = 0.00;
+            }else{
+                currentValue = Double.valueOf(retrievedItem.getCustomRating()) * userCount;
+            }
+
+            String newCustomRating = String.valueOf((Double.valueOf(customRating) + currentValue) / (userCount+1));
+
+            if(newCustomRating == null){
+                throw new RuntimeException("During custom rating calculation something wrong happened");
+            }
+
+            userList.add(userId);
+            retrievedItem.setCustomRating(newCustomRating);
+            retrievedItem.setUserList(userList);
+
             System.out.println("retrievedItem:"+retrievedItem);
+
             dynamoDBMapper.save(retrievedItem);
             return retrievedItem;
+
         }catch(Exception e){
             LOG.debug("DB Querying Fail due to " +e.getMessage());
-            throw new RuntimeException("failing during updating the item:" + restaurantEntity.getId() + " with Error:" + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
     // TODO: get query for getting custom rating api
+
 
     public Integer getLimit(Integer maxNum) {
         return maxNum != null ? maxNum : 1000;
