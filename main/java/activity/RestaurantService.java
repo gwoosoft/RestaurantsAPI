@@ -146,12 +146,13 @@ public class RestaurantService {
      * @param customRating
      * @return
      */
-    public RestaurantEntity updateCustomRate(RestaurantEntity restaurantEntity, String customRating){
+    public RestaurantEntity updateCustomRate(RestaurantEntity restaurantEntity, String customRating, String userId){
         try{
-            return dynamoDBRepository.putCustomRate(restaurantEntity, customRating);
+            return dynamoDBRepository.putCustomRate(restaurantEntity, customRating, userId);
         }catch(Exception e){
+            LOG.debug(e.getMessage());
             throw new RestaurantAPIErrorException(
-                    "Trouble updating the item",
+                    "Trouble updating the item due to " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     e.getMessage()
             );
